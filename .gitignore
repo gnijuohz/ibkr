@@ -1,0 +1,28 @@
+# Secrets - NEVER commit
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# Data files (contain private portfolio data)
+data/
+
+# Generated charts (may contain sensitive info)
+output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
