@@ -1,0 +1,424 @@
+{
+  "snapshots": [
+    {
+      "date": "20250101",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 18.5
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 15.2
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 12.0
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 8.5
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 7.3
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 5.5
+        }
+      ],
+      "cash_pct": 25.0,
+      "other_pct": 8.0,
+      "invested_pct": 75.0,
+      "index_value": 100.0,
+      "period_return_pct": null,
+      "total_return_pct": null
+    },
+    {
+      "date": "20250201",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 19.2
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 14.8
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 11.5
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 9.0
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 8.5
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 5.0
+        }
+      ],
+      "cash_pct": 23.0,
+      "other_pct": 9.0,
+      "invested_pct": 77.0,
+      "index_value": 103.2,
+      "period_return_pct": 3.2,
+      "total_return_pct": 3.2
+    },
+    {
+      "date": "20250301",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 17.8
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 15.5
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 10.2
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 8.8
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 10.2
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 5.5
+        }
+      ],
+      "cash_pct": 22.0,
+      "other_pct": 10.0,
+      "invested_pct": 78.0,
+      "index_value": 101.5,
+      "period_return_pct": -1.65,
+      "total_return_pct": 1.5
+    },
+    {
+      "date": "20250401",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 16.5
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 16.0
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 9.8
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 9.2
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 12.5
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 4.5
+        }
+      ],
+      "cash_pct": 20.0,
+      "other_pct": 11.5,
+      "invested_pct": 80.0,
+      "index_value": 108.7,
+      "period_return_pct": 7.09,
+      "total_return_pct": 8.7
+    },
+    {
+      "date": "20250501",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 15.8
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 16.5
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 9.5
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 9.8
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 14.2
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 4.2
+        }
+      ],
+      "cash_pct": 18.0,
+      "other_pct": 12.0,
+      "invested_pct": 82.0,
+      "index_value": 112.3,
+      "period_return_pct": 3.31,
+      "total_return_pct": 12.3
+    },
+    {
+      "date": "20250601",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 14.5
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 17.2
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 8.8
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 10.5
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 15.8
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 3.8
+        }
+      ],
+      "cash_pct": 17.0,
+      "other_pct": 12.4,
+      "invested_pct": 83.0,
+      "index_value": 115.8,
+      "period_return_pct": 3.12,
+      "total_return_pct": 15.8
+    },
+    {
+      "date": "20250701",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 14.2
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 16.8
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 9.0
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 10.2
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 14.5
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 4.0
+        }
+      ],
+      "cash_pct": 19.0,
+      "other_pct": 12.3,
+      "invested_pct": 81.0,
+      "index_value": 111.2,
+      "period_return_pct": -3.97,
+      "total_return_pct": 11.2
+    },
+    {
+      "date": "20250801",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 15.0
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 17.5
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 9.2
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 11.0
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 13.8
+        },
+        {
+          "symbol": "META",
+          "allocation_pct": 4.5
+        }
+      ],
+      "cash_pct": 17.0,
+      "other_pct": 12.0,
+      "invested_pct": 83.0,
+      "index_value": 118.5,
+      "period_return_pct": 6.56,
+      "total_return_pct": 18.5
+    },
+    {
+      "date": "20250901",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 14.8
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 18.2
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 8.5
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 11.5
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 14.5
+        },
+        {
+          "symbol": "TSLA",
+          "allocation_pct": 3.5
+        }
+      ],
+      "cash_pct": 16.0,
+      "other_pct": 13.0,
+      "invested_pct": 84.0,
+      "index_value": 122.8,
+      "period_return_pct": 3.63,
+      "total_return_pct": 22.8
+    },
+    {
+      "date": "20251001",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 13.5
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 19.0
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 8.0
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 12.2
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 15.8
+        },
+        {
+          "symbol": "TSLA",
+          "allocation_pct": 4.0
+        }
+      ],
+      "cash_pct": 14.0,
+      "other_pct": 13.5,
+      "invested_pct": 86.0,
+      "index_value": 128.5,
+      "period_return_pct": 4.64,
+      "total_return_pct": 28.5
+    },
+    {
+      "date": "20251101",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 14.0
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 18.5
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 8.2
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 11.8
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 13.5
+        },
+        {
+          "symbol": "TSLA",
+          "allocation_pct": 3.2
+        }
+      ],
+      "cash_pct": 18.0,
+      "other_pct": 12.8,
+      "invested_pct": 82.0,
+      "index_value": 119.2,
+      "period_return_pct": -7.24,
+      "total_return_pct": 19.2
+    },
+    {
+      "date": "20251201",
+      "positions": [
+        {
+          "symbol": "AAPL",
+          "allocation_pct": 14.5
+        },
+        {
+          "symbol": "MSFT",
+          "allocation_pct": 19.2
+        },
+        {
+          "symbol": "GOOGL",
+          "allocation_pct": 8.5
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 12.5
+        },
+        {
+          "symbol": "NVDA",
+          "allocation_pct": 14.8
+        },
+        {
+          "symbol": "TSLA",
+          "allocation_pct": 3.5
+        }
+      ],
+      "cash_pct": 15.0,
+      "other_pct": 12.0,
+      "invested_pct": 85.0,
+      "index_value": 125.8,
+      "period_return_pct": 5.54,
+      "total_return_pct": 25.8
+    }
+  ]
+}
