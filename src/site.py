@@ -57,17 +57,36 @@ def _generate_html(history: PortfolioHistory) -> str:
         if latest.cash_pct > 0:
             current_allocation.append({"symbol": "Cash", "pct": round(latest.cash_pct, 2)})
 
-    # Format dates for display
+    # Parse dates
+    def parse_date(d: str) -> datetime | None:
+        for fmt in ["%Y%m%d", "%Y-%m-%d"]:
+            try:
+                return datetime.strptime(d, fmt)
+            except ValueError:
+                continue
+        return None
+
+    parsed_dates = [parse_date(d) for d in dates]
+    valid_dates = [d for d in parsed_dates if d is not None]
+
+    # Determine date format based on data span
+    if len(valid_dates) >= 2:
+        span_days = (max(valid_dates) - min(valid_dates)).days
+        spans_multiple_years = max(valid_dates).year != min(valid_dates).year
+    else:
+        span_days = 0
+        spans_multiple_years = False
+
     def format_date(d: str) -> str:
-        try:
-            for fmt in ["%Y%m%d", "%Y-%m-%d"]:
-                try:
-                    return datetime.strptime(d, fmt).strftime("%b %Y")
-                except ValueError:
-                    continue
-        except:
-            pass
-        return d
+        parsed = parse_date(d)
+        if parsed is None:
+            return d
+        if spans_multiple_years:
+            return parsed.strftime("%b %d '%y")  # "Jan 05 '25"
+        elif span_days > 90:
+            return parsed.strftime("%b %d")  # "Jan 05"
+        else:
+            return parsed.strftime("%m/%d")  # "01/05"
 
     formatted_dates = [format_date(d) for d in dates]
 
