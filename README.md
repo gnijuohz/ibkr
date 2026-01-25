@@ -1,6 +1,6 @@
 # IBKR Portfolio Tracker
 
-A privacy-focused portfolio tracker for Interactive Brokers that shows only percentages, hiding actual dollar values and sensitive positions.
+A privacy-focused portfolio tracker for Interactive Brokers that shows only percentages, hiding actual dollar values and sensitive positions. Generates an interactive website for GitHub Pages.
 
 ## Features
 
@@ -8,10 +8,11 @@ A privacy-focused portfolio tracker for Interactive Brokers that shows only perc
 - **Options Hidden**: Options and other derivatives are aggregated as "Other Positions"
 - **Portfolio Index**: Track performance using a baseline of 100 (like an index fund)
 - **Monthly Tracking**: Store historical snapshots for trend analysis
-- **Charts**: Generate visual charts of allocation and performance
-- **Safe Export**: Export data that's safe to share publicly
+- **Interactive Charts**: Beautiful Chart.js visualizations (no static images)
+- **GitHub Pages Ready**: One command to generate a deployable site
+- **Safe Export**: All published data contains only percentages
 
-## Setup
+## Quick Start
 
 ### 1. Install Dependencies
 
@@ -41,22 +42,39 @@ cp .env.example .env
 ```
 
 Edit `.env` with your credentials:
-```
+```bash
 IBKR_FLEX_TOKEN=your_token_here
 IBKR_QUERY_ID=your_query_id_here
 ```
 
 ## Usage
 
-### Update Portfolio Data
-
-Fetch the latest data from IBKR (run monthly):
+### Monthly Workflow
 
 ```bash
+# 1. Fetch latest data from IBKR
 python -m src.main update
+
+# 2. Generate the website
+python -m src.main site
+
+# 3. Commit and push to deploy
+git add docs/
+git commit -m "Update portfolio data"
+git push
 ```
 
-### View Current Portfolio
+### All Commands
+
+| Command | Description |
+|---------|-------------|
+| `python -m src.main update` | Fetch latest data from IBKR |
+| `python -m src.main show` | Show current portfolio in terminal |
+| `python -m src.main history` | Show historical data table |
+| `python -m src.main site` | Generate interactive HTML site |
+| `python -m src.main export` | Export public JSON data |
+
+### View Portfolio in Terminal
 
 ```bash
 python -m src.main show
@@ -83,75 +101,94 @@ Period Return: +2.30%
   Other           5.00%
 ```
 
-### View History
+## GitHub Pages Deployment
+
+### Option 1: Automatic (GitHub Actions)
+
+1. Push to the `main` branch
+2. Go to repo **Settings → Pages**
+3. Set source to **GitHub Actions**
+4. The site auto-deploys when `docs/` changes
+
+### Option 2: Manual (docs folder)
+
+1. Go to repo **Settings → Pages**
+2. Set source to **Deploy from a branch**
+3. Select **main** branch and **/docs** folder
+4. Click Save
+
+Your site will be live at: `https://yourusername.github.io/your-repo-name/`
+
+### Preview Locally
 
 ```bash
-python -m src.main history
+python -m src.main site
+cd docs && python -m http.server 8000
+# Open http://localhost:8000
 ```
 
-### Generate Charts
+## Interactive Charts
 
-```bash
-python -m src.main charts
-```
+The generated site includes:
 
-Generates:
-- `output/portfolio_index.png` - Portfolio value as index (baseline 100)
-- `output/allocation_YYYYMMDD.png` - Current allocation pie chart
-- `output/allocation_history.png` - Allocation changes over time
-- `output/monthly_returns.png` - Monthly return bar chart
+1. **Portfolio Index** - Line chart showing value relative to baseline (100)
+2. **Monthly Returns** - Bar chart of period-over-period returns
+3. **Current Allocation** - Doughnut chart of position weights
+4. **Allocation History** - Stacked area chart showing changes over time
+5. **Positions Table** - Sortable table with allocation bars
 
-### Export Public Data
-
-```bash
-python -m src.main export
-```
-
-This exports `data/portfolio_public.json` which contains only percentages and is safe to share.
+All charts are interactive with hover tooltips and responsive design.
 
 ## Data Privacy
 
-| Data Type | Stored | Displayed | Exported |
-|-----------|--------|-----------|----------|
-| Dollar values | Never* | Never | Never |
-| Position % | Yes | Yes | Yes |
-| Options details | Never | Never | Never |
-| Account ID | Never | Never | Never |
-| Index value | Yes | Yes | Yes |
-| Returns % | Yes | Yes | Yes |
+| Data Type | Stored Locally | Published to Site |
+|-----------|----------------|-------------------|
+| Dollar values | Encrypted* | **Never** |
+| Position percentages | Yes | Yes |
+| Options details | Never | Never |
+| Account ID | Never | Never |
+| Index value | Yes | Yes |
+| Return percentages | Yes | Yes |
 
-*Baseline value stored locally in `.private_values.json` for index calculation only
+*Baseline value stored in `data/.private_values.json` for index calculation only
 
 ## File Structure
 
 ```
 ibkr/
-├── .env                 # Your secrets (never commit!)
-├── .env.example         # Template for secrets
-├── requirements.txt     # Python dependencies
+├── .env                    # Your secrets (never commit!)
+├── .env.example            # Template for secrets
+├── requirements.txt        # Python dependencies
 ├── src/
-│   ├── __init__.py
-│   ├── config.py        # Configuration management
-│   ├── flex_client.py   # IBKR Flex API client
-│   ├── portfolio.py     # Data models & transformations
-│   ├── storage.py       # Historical data storage
-│   ├── charts.py        # Chart generation
-│   └── main.py          # CLI entry point
-├── data/                # Portfolio data (gitignored)
+│   ├── config.py           # Configuration
+│   ├── flex_client.py      # IBKR Flex API client
+│   ├── portfolio.py        # Data models & privacy transforms
+│   ├── storage.py          # Historical data storage
+│   ├── site.py             # HTML site generator
+│   └── main.py             # CLI entry point
+├── data/                   # Private data (gitignored)
 │   ├── portfolio_history.json
 │   └── .private_values.json
-└── output/              # Generated charts (gitignored)
+├── docs/                   # GitHub Pages site (committed)
+│   ├── index.html
+│   └── data.json
+└── .github/
+    └── workflows/
+        └── deploy.yml      # Auto-deploy workflow
 ```
 
-## Monthly Update Reminder
+## Cron Job (Optional)
 
-Set up a monthly reminder to run:
-```bash
-python -m src.main update && python -m src.main charts
-```
+Set up automatic monthly updates:
 
-Or add a cron job:
 ```bash
 # Run on the 1st of each month at 9am
-0 9 1 * * cd /path/to/ibkr && python -m src.main update
+0 9 1 * * cd /path/to/ibkr && python -m src.main update && python -m src.main site && git add docs/ && git commit -m "Monthly update" && git push
 ```
+
+## Security Notes
+
+- Never commit `.env` file
+- The `data/` folder contains private values and is gitignored
+- Only `docs/` is published, containing only percentages
+- Options positions are automatically hidden as "Other Positions"

@@ -10,11 +10,11 @@ import argparse
 import sys
 from datetime import datetime
 
-from .config import validate_config, OUTPUT_DIR
+from .config import validate_config
 from .flex_client import FlexClient, FlexClientError
 from .portfolio import transform_to_public, PortfolioHistory
 from .storage import load_history, save_history, export_public_history
-from .charts import generate_all_charts
+from .site import generate_site, SITE_DIR
 
 
 def cmd_update(args):
@@ -128,20 +128,25 @@ def cmd_history(args):
     print()
 
 
-def cmd_charts(args):
-    """Generate portfolio charts."""
+def cmd_site(args):
+    """Generate static HTML site for GitHub Pages."""
     history, _, _ = load_history()
 
     if not history.snapshots:
         print("No portfolio data yet. Run 'update' first.")
         return
 
-    print("Generating charts...")
-    paths = generate_all_charts(history)
+    print("Generating site...")
+    site_path = generate_site(history)
 
-    print(f"\nGenerated {len(paths)} chart(s):")
-    for path in paths:
-        print(f"  {path}")
+    print(f"\nSite generated at: {site_path}")
+    print(f"  - {site_path / 'index.html'}")
+    print(f"  - {site_path / 'data.json'}")
+    print("\nTo preview locally:")
+    print(f"  cd {site_path} && python -m http.server 8000")
+    print("\nTo deploy to GitHub Pages:")
+    print("  1. Commit and push the docs/ folder")
+    print("  2. Enable GitHub Pages in repo settings (source: docs/)")
 
 
 def cmd_export(args):
@@ -161,7 +166,7 @@ Examples:
   %(prog)s update      Fetch latest data from IBKR
   %(prog)s show        Show current portfolio allocation
   %(prog)s history     Show historical data
-  %(prog)s charts      Generate portfolio charts
+  %(prog)s site        Generate interactive HTML site
   %(prog)s export      Export public data (safe to share)
         """,
     )
@@ -180,9 +185,9 @@ Examples:
     history_parser = subparsers.add_parser("history", help="Show historical data")
     history_parser.set_defaults(func=cmd_history)
 
-    # Charts command
-    charts_parser = subparsers.add_parser("charts", help="Generate portfolio charts")
-    charts_parser.set_defaults(func=cmd_charts)
+    # Site command
+    site_parser = subparsers.add_parser("site", help="Generate interactive HTML site for GitHub Pages")
+    site_parser.set_defaults(func=cmd_site)
 
     # Export command
     export_parser = subparsers.add_parser("export", help="Export public portfolio data")

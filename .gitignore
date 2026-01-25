@@ -14,8 +14,8 @@ env/
 # Data files (contain private portfolio data)
 data/
 
-# Generated charts (may contain sensitive info)
-output/
+# Note: docs/ is NOT ignored - it contains the GitHub Pages site
+# The site only has percentages, no actual values
 
 # IDE
 .vscode/
