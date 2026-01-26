@@ -50,8 +50,8 @@ def cmd_update(args):
     # Check for duplicate date
     existing_dates = {s.date for s in history.snapshots}
     if snapshot.date in existing_dates:
-        print(f"Warning: Data for {snapshot.date} already exists. Skipping.")
-        return
+        print(f"Data for {snapshot.date} already exists. No update needed.")
+        sys.exit(2)  # Exit code 2 = no new data
 
     # Transform to public snapshot
     public_snapshot, actual_value = transform_to_public(
