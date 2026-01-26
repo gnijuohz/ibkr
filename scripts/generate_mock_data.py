@@ -23,14 +23,22 @@ random.seed(42)
 def generate_mock_data(num_snapshots: int = 20) -> list[PublicSnapshot]:
     """Generate realistic mock portfolio data with variable intervals."""
 
-    # Starting positions
+    # Starting positions - mix of US and international stocks
     positions = {
-        "AAPL": 18.5,
-        "MSFT": 15.2,
-        "GOOGL": 12.0,
-        "AMZN": 8.5,
-        "NVDA": 7.3,
-        "META": 5.5,
+        # US stocks
+        "AAPL": 15.0,
+        "MSFT": 12.0,
+        "GOOGL": 8.0,
+        "AMZN": 6.0,
+        "NVDA": 5.0,
+        # European stocks
+        "ASML": 4.5,   # Netherlands - semiconductors
+        "NVO": 3.5,    # Denmark - Novo Nordisk
+        # Asian stocks
+        "TSM": 4.0,    # Taiwan - TSMC
+        "BABA": 3.0,   # China - Alibaba
+        # Emerging
+        "MELI": 2.0,   # Latin America - MercadoLibre
     }
     cash_pct = 25.0
     other_pct = 8.0  # Options/hidden
@@ -61,12 +69,23 @@ def generate_mock_data(num_snapshots: int = 20) -> list[PublicSnapshot]:
             change = random.gauss(0, 0.8)  # Small random changes
             positions[symbol] = max(0.5, positions[symbol] + change)
 
-        # Occasionally add/remove a position
-        if i > 5 and random.random() < 0.1:
-            if "TSLA" not in positions:
-                positions["TSLA"] = random.uniform(2, 5)
-            elif random.random() < 0.3:
-                del positions["TSLA"]
+        # Occasionally add/remove positions
+        if i > 5 and random.random() < 0.15:
+            # Pool of stocks to potentially add
+            potential_adds = [
+                ("TSLA", "US"),
+                ("META", "US"),
+                ("JD", "China"),
+                ("SONY", "Japan"),
+                ("SAP", "Europe"),
+            ]
+            for symbol, _ in potential_adds:
+                if symbol not in positions and random.random() < 0.3:
+                    positions[symbol] = random.uniform(1.5, 4)
+                    break
+                elif symbol in positions and random.random() < 0.1:
+                    del positions[symbol]
+                    break
 
         # Normalize positions
         total_pos = sum(positions.values())

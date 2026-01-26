@@ -6,6 +6,7 @@ from datetime import datetime
 
 from .config import PROJECT_ROOT
 from .portfolio import PortfolioHistory, PublicSnapshot
+from .regions import get_region, get_region_color, get_region_order, REGION_CONFIG
 
 
 # Use docs/ for GitHub Pages compatibility
@@ -57,6 +58,59 @@ def _generate_html(history: PortfolioHistory) -> str:
         if latest.cash_pct > 0:
             current_allocation.append({"symbol": "Cash", "pct": round(latest.cash_pct, 2)})
 
+    # Calculate regional allocation for latest snapshot
+    regional_allocation = []
+    if latest:
+        region_totals: dict[str, float] = {}
+        for pos in latest.positions:
+            region = get_region(pos.symbol)
+            region_totals[region] = region_totals.get(region, 0) + pos.allocation_pct
+
+        # Sort by allocation percentage (descending)
+        sorted_regions = sorted(region_totals.items(), key=lambda x: -x[1])
+        for region, pct in sorted_regions:
+            regional_allocation.append({
+                "region": region,
+                "pct": round(pct, 2),
+                "color": get_region_color(region)
+            })
+
+        # Add Other Positions and Cash
+        if latest.other_pct > 0:
+            regional_allocation.append({
+                "region": "Other Positions",
+                "pct": round(latest.other_pct, 2),
+                "color": "#64748b"
+            })
+        if latest.cash_pct > 0:
+            regional_allocation.append({
+                "region": "Cash",
+                "pct": round(latest.cash_pct, 2),
+                "color": "#22c55e"
+            })
+
+    # Calculate regional allocation history
+    all_regions = set()
+    for snapshot in history.snapshots:
+        for pos in snapshot.positions:
+            all_regions.add(get_region(pos.symbol))
+
+    # Sort regions by display order
+    sorted_region_names = sorted(all_regions, key=get_region_order)
+
+    regional_series: dict[str, list[float]] = {r: [] for r in sorted_region_names}
+    for snapshot in history.snapshots:
+        region_totals = {r: 0.0 for r in sorted_region_names}
+        for pos in snapshot.positions:
+            region = get_region(pos.symbol)
+            if region in region_totals:
+                region_totals[region] += pos.allocation_pct
+        for region in sorted_region_names:
+            regional_series[region].append(round(region_totals[region], 2))
+
+    # Get region colors for the chart
+    region_colors = {r: get_region_color(r) for r in sorted_region_names}
+
     # Parse dates
     def parse_date(d: str) -> datetime | None:
         for fmt in ["%Y%m%d", "%Y-%m-%d"]:
@@ -101,6 +155,10 @@ def _generate_html(history: PortfolioHistory) -> str:
         "topSymbols": top_symbols,
         "allocationSeries": allocation_series,
         "currentAllocation": current_allocation,
+        "regionalAllocation": regional_allocation,
+        "regions": sorted_region_names,
+        "regionalSeries": regional_series,
+        "regionColors": region_colors,
         "latest": {
             "date": latest.date if latest else "",
             "indexValue": round(latest.index_value, 2) if latest else 100,
@@ -312,6 +370,20 @@ def _generate_html(history: PortfolioHistory) -> str:
                     <canvas id="allocationHistoryChart"></canvas>
                 </div>
             </div>
+
+            <div class="chart-card">
+                <h2>Regional Allocation</h2>
+                <div class="chart-container">
+                    <canvas id="regionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2>Regional Allocation Over Time</h2>
+                <div class="chart-container">
+                    <canvas id="regionHistoryChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <div class="chart-card">
@@ -509,6 +581,83 @@ def _generate_html(history: PortfolioHistory) -> str:
             data: {{
                 labels: data.dates,
                 datasets: stackedDatasets,
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    legend: {{
+                        position: 'bottom',
+                    }},
+                }},
+                scales: {{
+                    y: {{
+                        stacked: true,
+                        max: 100,
+                    }},
+                    x: {{
+                        stacked: true,
+                    }}
+                }}
+            }}
+        }});
+
+        // Regional Allocation Pie Chart
+        new Chart(document.getElementById('regionChart'), {{
+            type: 'doughnut',
+            data: {{
+                labels: data.regionalAllocation.map(r => r.region),
+                datasets: [{{
+                    data: data.regionalAllocation.map(r => r.pct),
+                    backgroundColor: data.regionalAllocation.map(r => r.color),
+                    borderWidth: 0,
+                }}]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    legend: {{
+                        position: 'right',
+                    }},
+                }},
+            }}
+        }});
+
+        // Regional Allocation History (Stacked Area)
+        const regionDatasets = [];
+
+        data.regions.forEach(region => {{
+            regionDatasets.push({{
+                label: region,
+                data: data.regionalSeries[region],
+                backgroundColor: data.regionColors[region],
+                fill: true,
+                tension: 0.3,
+            }});
+        }});
+
+        regionDatasets.push({{
+            label: 'Other Positions',
+            data: data.otherPcts,
+            backgroundColor: '#64748b',
+            fill: true,
+            tension: 0.3,
+        }});
+
+        regionDatasets.push({{
+            label: 'Cash',
+            data: data.cashPcts,
+            backgroundColor: '#22c55e',
+            fill: true,
+            tension: 0.3,
+        }});
+
+        new Chart(document.getElementById('regionHistoryChart'), {{
+            type: 'line',
+            data: {{
+                labels: data.dates,
+                datasets: regionDatasets,
             }},
             options: {{
                 responsive: true,
