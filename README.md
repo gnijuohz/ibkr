@@ -5,10 +5,11 @@ A privacy-focused portfolio tracker for Interactive Brokers that shows only perc
 ## Features
 
 - **Privacy First**: Only stores and displays percentages, never actual dollar values
-- **Options Hidden**: Options and other derivatives are aggregated as "Other Positions"
+- **Multi-Account Support**: View combined or per-account allocations with masked account IDs
+- **Options Hidden**: Options, derivatives, and smaller positions are combined as "Other Positions"
 - **Portfolio Index**: Track performance using a baseline of 100 (like an index fund)
 - **Monthly Tracking**: Store historical snapshots for trend analysis
-- **Interactive Charts**: Beautiful Chart.js visualizations (no static images)
+- **Interactive Charts**: Beautiful Chart.js visualizations with account filtering
 - **GitHub Pages Ready**: One command to generate a deployable site
 - **Safe Export**: All published data contains only percentages
 
@@ -133,11 +134,13 @@ The generated site includes:
 
 1. **Portfolio Index** - Line chart showing value relative to baseline (100)
 2. **Monthly Returns** - Bar chart of period-over-period returns
-3. **Current Allocation** - Doughnut chart of position weights
-4. **Allocation History** - Stacked area chart showing changes over time
-5. **Positions Table** - Sortable table with allocation bars
+3. **Current Allocation** - Horizontal bar chart of top 6 positions + Other + Cash
+4. **Allocation Over Time** - Stacked area chart showing position changes
+5. **Regional Allocation** - Horizontal bar chart by geographic region
+6. **Regional Allocation Over Time** - Stacked area chart of regional exposure
+7. **Positions Table** - Table with allocation bars
 
-All charts are interactive with hover tooltips and responsive design.
+All charts are interactive with hover tooltips and respond to account selection (All, Account A, Account B, etc.).
 
 ## Data Privacy
 
@@ -145,8 +148,8 @@ All charts are interactive with hover tooltips and responsive design.
 |-----------|----------------|-------------------|
 | Dollar values | Encrypted* | **Never** |
 | Position percentages | Yes | Yes |
-| Options details | Never | Never |
-| Account ID | Never | Never |
+| Options/derivatives size | Yes | **Never** (combined into "Other Positions") |
+| Real account IDs | Yes | **Never** (masked as "Account A", "Account B") |
 | Index value | Yes | Yes |
 | Return percentages | Yes | Yes |
 
@@ -163,6 +166,7 @@ ibkr/
 │   ├── config.py           # Configuration
 │   ├── flex_client.py      # IBKR Flex API client
 │   ├── portfolio.py        # Data models & privacy transforms
+│   ├── regions.py          # Symbol-to-region mapping for charts
 │   ├── storage.py          # Historical data storage
 │   ├── site.py             # HTML site generator
 │   └── main.py             # CLI entry point
@@ -191,4 +195,5 @@ Set up automatic monthly updates:
 - Never commit `.env` file
 - The `data/` folder contains private values and is gitignored
 - Only `docs/` is published, containing only percentages
-- Options positions are automatically hidden as "Other Positions"
+- Options, derivatives, and smaller positions are combined as "Other Positions"
+- Real account IDs are masked (e.g., "Account A", "Account B") in published data
