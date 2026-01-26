@@ -15,6 +15,7 @@ from .flex_client import FlexClient, FlexClientError
 from .portfolio import transform_to_public, PortfolioHistory
 from .storage import load_history, save_history, export_public_history
 from .site import generate_site, SITE_DIR
+from .regions import get_unmapped_symbols
 
 
 def cmd_update(args):
@@ -33,6 +34,15 @@ def cmd_update(args):
 
     print(f"Received data for: {snapshot.date}")
     print(f"Found {len(snapshot.positions)} positions")
+
+    # Check for unmapped symbols
+    symbols = [p.symbol for p in snapshot.positions]
+    unmapped = get_unmapped_symbols(symbols)
+    if unmapped:
+        print(f"\nWarning: {len(unmapped)} symbols have no region mapping:")
+        for sym in sorted(set(unmapped)):
+            print(f"  - {sym}")
+        print("Add them to src/regions.py SYMBOL_REGIONS for accurate regional allocation.\n")
 
     # Load existing history
     history, baseline_value, last_value = load_history()

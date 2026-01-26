@@ -15,12 +15,16 @@ class PublicPosition:
     """A privacy-safe position showing only percentages."""
     symbol: str
     allocation_pct: float  # Percentage of total portfolio
+    account_id: str = ""
 
     def to_dict(self) -> dict:
-        return {
+        result = {
             "symbol": self.symbol,
             "allocation_pct": round(self.allocation_pct, 2),
         }
+        if self.account_id:
+            result["account_id"] = self.account_id
+        return result
 
 
 @dataclass
@@ -34,9 +38,23 @@ class PublicSnapshot:
     index_value: float  # Portfolio value as index (baseline 100)
     period_return_pct: Optional[float] = None  # Return since last snapshot
     total_return_pct: Optional[float] = None  # Return since inception
+    accounts: list[str] = None  # List of account IDs
+    cash_by_account: dict[str, float] = None  # account_id -> cash percentage
+    other_by_account: dict[str, float] = None  # account_id -> other percentage
+    total_by_account: dict[str, float] = None  # account_id -> total percentage (for calculating other without exposing it)
+
+    def __post_init__(self):
+        if self.accounts is None:
+            self.accounts = []
+        if self.cash_by_account is None:
+            self.cash_by_account = {}
+        if self.other_by_account is None:
+            self.other_by_account = {}
+        if self.total_by_account is None:
+            self.total_by_account = {}
 
     def to_dict(self) -> dict:
-        return {
+        result = {
             "date": self.date,
             "positions": [p.to_dict() for p in self.positions],
             "cash_pct": round(self.cash_pct, 2),
@@ -46,6 +64,12 @@ class PublicSnapshot:
             "period_return_pct": round(self.period_return_pct, 2) if self.period_return_pct is not None else None,
             "total_return_pct": round(self.total_return_pct, 2) if self.total_return_pct is not None else None,
         }
+        if self.accounts:
+            result["accounts"] = self.accounts
+            result["cash_by_account"] = {k: round(v, 2) for k, v in self.cash_by_account.items()}
+            result["other_by_account"] = {k: round(v, 2) for k, v in self.other_by_account.items()}
+            result["total_by_account"] = {k: round(v, 2) for k, v in self.total_by_account.items()}
+        return result
 
 
 @dataclass
@@ -89,16 +113,26 @@ def transform_to_public(
     # Separate visible and hidden positions
     visible_positions: list[PublicPosition] = []
     hidden_value = 0.0
+    hidden_by_account: dict[str, float] = {}
+
+    # Collect all account IDs
+    account_ids = set()
+    for pos in snapshot.positions:
+        if pos.account_id:
+            account_ids.add(pos.account_id)
 
     for pos in snapshot.positions:
         if pos.asset_category in HIDDEN_CATEGORIES:
             hidden_value += pos.market_value
+            if pos.account_id:
+                hidden_by_account[pos.account_id] = hidden_by_account.get(pos.account_id, 0) + pos.market_value
         else:
             pct = (pos.market_value / total_value) * 100
             if pct >= 0.1:  # Only show positions >= 0.1%
                 visible_positions.append(PublicPosition(
                     symbol=pos.symbol,
                     allocation_pct=pct,
+                    account_id=pos.account_id,
                 ))
 
     # Sort by allocation (largest first)
@@ -108,6 +142,30 @@ def transform_to_public(
     cash_pct = (snapshot.cash_balance / total_value) * 100
     other_pct = (hidden_value / total_value) * 100
     invested_pct = 100 - cash_pct
+
+    # Calculate per-account percentages
+    cash_by_account = {}
+    for acc_id, cash in snapshot.cash_by_account.items():
+        cash_by_account[acc_id] = (cash / total_value) * 100
+        account_ids.add(acc_id)
+
+    other_by_account = {}
+    for acc_id, hidden in hidden_by_account.items():
+        other_by_account[acc_id] = (hidden / total_value) * 100
+
+    # Calculate total per account (positions + cash + hidden)
+    # This allows calculating "Other" without exposing the specific hidden amount
+    total_by_account: dict[str, float] = {}
+    positions_by_account: dict[str, float] = {}
+    for pos in snapshot.positions:
+        if pos.account_id:
+            positions_by_account[pos.account_id] = positions_by_account.get(pos.account_id, 0) + pos.market_value
+
+    for acc_id in account_ids:
+        acc_positions = positions_by_account.get(acc_id, 0)
+        acc_cash = snapshot.cash_by_account.get(acc_id, 0)
+        acc_total = acc_positions + acc_cash
+        total_by_account[acc_id] = (acc_total / total_value) * 100
 
     # Calculate index value (baseline 100)
     if baseline_value is None:
@@ -134,6 +192,10 @@ def transform_to_public(
         index_value=index_value,
         period_return_pct=period_return_pct,
         total_return_pct=total_return_pct,
+        accounts=sorted(account_ids),
+        cash_by_account=cash_by_account,
+        other_by_account=other_by_account,
+        total_by_account=total_by_account,
     )
 
     return public_snapshot, total_value

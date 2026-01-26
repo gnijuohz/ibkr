@@ -33,6 +33,7 @@ def load_history() -> tuple[PortfolioHistory, Optional[float], Optional[float]]:
                     PublicPosition(
                         symbol=p["symbol"],
                         allocation_pct=p["allocation_pct"],
+                        account_id=p.get("account_id", ""),
                     )
                     for p in snap_data.get("positions", [])
                 ]
@@ -40,11 +41,15 @@ def load_history() -> tuple[PortfolioHistory, Optional[float], Optional[float]]:
                     date=snap_data["date"],
                     positions=positions,
                     cash_pct=snap_data["cash_pct"],
-                    other_pct=snap_data["other_pct"],
+                    other_pct=snap_data.get("other_pct", 0),
                     invested_pct=snap_data["invested_pct"],
                     index_value=snap_data["index_value"],
                     period_return_pct=snap_data.get("period_return_pct"),
                     total_return_pct=snap_data.get("total_return_pct"),
+                    accounts=snap_data.get("accounts", []),
+                    cash_by_account=snap_data.get("cash_by_account", {}),
+                    other_by_account=snap_data.get("other_by_account", {}),
+                    total_by_account=snap_data.get("total_by_account", {}),
                 )
                 history.snapshots.append(snapshot)
 

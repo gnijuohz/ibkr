@@ -20,6 +20,7 @@ class Position:
     cost_basis: float
     unrealized_pnl: float
     currency: str = "USD"
+    account_id: str = ""
 
 
 @dataclass
@@ -30,6 +31,11 @@ class PortfolioSnapshot:
     cash_balance: float
     total_value: float
     currency: str = "USD"
+    cash_by_account: dict[str, float] = None  # account_id -> cash balance
+
+    def __post_init__(self):
+        if self.cash_by_account is None:
+            self.cash_by_account = {}
 
 
 class FlexClientError(Exception):
@@ -124,19 +130,27 @@ class FlexClient:
                 symbol=pos.get("symbol", ""),
                 description=pos.get("description", ""),
                 asset_category=pos.get("assetCategory", ""),
-                market_value=float(pos.get("markValue", 0) or 0),
+                market_value=float(pos.get("positionValue", 0) or 0),
                 cost_basis=float(pos.get("costBasisMoney", 0) or 0),
                 unrealized_pnl=float(pos.get("fifoPnlUnrealized", 0) or 0),
                 currency=pos.get("currency", "USD"),
+                account_id=pos.get("accountId", ""),
             )
             positions.append(position)
 
-        # Parse cash balance
+        # Parse cash balance (total and per account)
+        # Cash is nested under FlexStatement elements, each with its own accountId
         cash_balance = 0.0
-        for cash in root.findall(".//CashReportCurrency"):
-            if cash.get("currency") == "BASE_SUMMARY":
-                cash_balance = float(cash.get("endingCash", 0) or 0)
-                break
+        cash_by_account: dict[str, float] = {}
+
+        for stmt in root.findall(".//FlexStatement"):
+            account_id = stmt.get("accountId", "")
+            for cash in stmt.findall(".//CashReportCurrency"):
+                if cash.get("currency") == "BASE_SUMMARY":
+                    ending_cash = float(cash.get("endingCash", 0) or 0)
+                    if account_id:
+                        cash_by_account[account_id] = ending_cash
+                    cash_balance += ending_cash
 
         # Calculate total value
         total_value = sum(p.market_value for p in positions) + cash_balance
@@ -146,4 +160,5 @@ class FlexClient:
             positions=positions,
             cash_balance=cash_balance,
             total_value=total_value,
+            cash_by_account=cash_by_account,
         )

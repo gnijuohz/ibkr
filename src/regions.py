@@ -4,6 +4,16 @@
 # Users can extend this mapping as needed
 SYMBOL_REGIONS: dict[str, str] = {
     # US - Large Tech
+    "RDDT": "US",      # Reddit
+    "DUOL": "US",      # Duolingo
+    "SGOV": "US",      # US Treasury ETF
+    "COUR": "US",      # Coursera
+    "HOOD": "US",      # Robinhood
+    "SONO": "US",      # Sonos
+    "IBKR": "US",      # Interactive Brokers
+    "ILMN": "US",      # Illumina
+    "BKNG": "US",      # Booking.com
+    "TSLA": "US",      # Tesla
     "AAPL": "US",
     "MSFT": "US",
     "GOOGL": "US",
@@ -77,6 +87,22 @@ SYMBOL_REGIONS: dict[str, str] = {
     "VTI": "US",
 
     # Europe
+    "SPOT": "Europe",  # Sweden (Spotify)
+    "ONON": "Europe",  # Switzerland (On Running)
+    "BNP": "Europe",   # France (BNP Paribas)
+    "ZAL": "Europe",   # Germany (Zalando)
+    "CS": "Europe",    # Switzerland (Credit Suisse)
+    "ZURN": "Europe",  # Switzerland (Zurich Insurance)
+    "ACA": "Europe",   # France (Credit Agricole)
+    "VOW3": "Europe",  # Germany (Volkswagen)
+    "MBG": "Europe",   # Germany (Mercedes-Benz)
+    "ADS": "Europe",   # Germany (Adidas)
+    "SREN": "Europe",  # Switzerland (Swiss Re)
+    "INGA": "Europe",  # Netherlands (ING Group)
+    "AIR": "Europe",   # France (Airbus)
+    "UBSG": "Europe",  # Switzerland (UBS)
+    "SIE": "Europe",   # Germany (Siemens)
+    "LHA": "Europe",   # Germany (Lufthansa)
     "ASML": "Europe",  # Netherlands
     "SAP": "Europe",   # Germany
     "NVO": "Europe",   # Denmark (Novo Nordisk)
@@ -107,6 +133,10 @@ SYMBOL_REGIONS: dict[str, str] = {
     "TME": "China",    # Tencent Music
     "NTES": "China",   # NetEase
     "YUMC": "China",   # Yum China
+    "TCOM": "China",   # Trip.com
+
+    # Canada
+    "LIGHT": "Canada", # Lightspeed Commerce
 
     # Japan
     "SONY": "Japan",
@@ -156,11 +186,12 @@ REGION_CONFIG = {
     "China": {"order": 3, "color": "#ef4444"},   # Red
     "Japan": {"order": 4, "color": "#f97316"},   # Orange
     "Taiwan": {"order": 5, "color": "#14b8a6"},  # Teal
-    "India": {"order": 6, "color": "#22c55e"},   # Green
-    "SEAsia": {"order": 7, "color": "#eab308"},  # Yellow
-    "LatAm": {"order": 8, "color": "#ec4899"},   # Pink
-    "Emerging": {"order": 9, "color": "#06b6d4"},# Cyan
-    "Intl": {"order": 10, "color": "#6366f1"},   # Indigo
+    "Canada": {"order": 6, "color": "#dc2626"},  # Red-600
+    "India": {"order": 7, "color": "#22c55e"},   # Green
+    "SEAsia": {"order": 8, "color": "#eab308"},  # Yellow
+    "LatAm": {"order": 9, "color": "#ec4899"},   # Pink
+    "Emerging": {"order": 10, "color": "#06b6d4"},# Cyan
+    "Intl": {"order": 11, "color": "#6366f1"},   # Indigo
     "Other": {"order": 99, "color": "#64748b"},  # Gray
 }
 
@@ -180,3 +211,13 @@ def get_region_color(region: str) -> str:
 def get_region_order(region: str) -> int:
     """Get the sort order for a region."""
     return REGION_CONFIG.get(region, REGION_CONFIG["Other"])["order"]
+
+
+def get_unmapped_symbols(symbols: list[str]) -> list[str]:
+    """Return list of symbols that don't have a region mapping."""
+    unmapped = []
+    for symbol in symbols:
+        clean_symbol = symbol.split(".")[0].upper()
+        if clean_symbol not in SYMBOL_REGIONS:
+            unmapped.append(symbol)
+    return unmapped

@@ -145,12 +145,56 @@
             padding-top: 2rem;
             border-top: 1px solid var(--bg-secondary);
         }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .account-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .account-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--bg-card);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .account-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .account-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Portfolio Tracker</h1>
-        <p class="subtitle">Updated: <span id="lastUpdate"></span></p>
+        <div class="header-row">
+            <div>
+                <h1>Portfolio Tracker</h1>
+                <p class="subtitle">Updated: <span id="lastUpdate"></span></p>
+            </div>
+            <div class="account-selector" id="accountSelector">
+                <!-- Account buttons will be added by JavaScript -->
+            </div>
+        </div>
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -166,7 +210,7 @@
                 <div class="stat-value" id="periodReturn">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Invested</div>
+                <div class="stat-label" id="investedLabel">Invested</div>
                 <div class="stat-value" id="investedPct">-</div>
             </div>
         </div>
@@ -236,10 +280,179 @@
     </div>
 
     <script>
-        const data = {"dates": ["Jul 15 '24", "Jul 23 '24", "Aug 03 '24", "Aug 09 '24", "Aug 15 '24", "Aug 25 '24", "Sep 08 '24", "Sep 20 '24", "Sep 29 '24", "Oct 11 '24", "Oct 22 '24", "Oct 27 '24", "Nov 02 '24", "Nov 09 '24", "Nov 17 '24", "Nov 25 '24", "Dec 03 '24", "Dec 12 '24", "Dec 24 '24", "Jan 01 '25", "Jan 07 '25", "Jan 15 '25", "Jan 23 '25", "Jan 29 '25", "Feb 09 '25"], "rawDates": ["20240715", "20240723", "20240803", "20240809", "20240815", "20240825", "20240908", "20240920", "20240929", "20241011", "20241022", "20241027", "20241102", "20241109", "20241117", "20241125", "20241203", "20241212", "20241224", "20250101", "20250107", "20250115", "20250123", "20250129", "20250209"], "indexValues": [100.0, 100.78, 100.42, 98.7, 105.25, 106.76, 104.29, 107.45, 106.74, 105.82, 112.01, 113.71, 113.18, 113.7, 118.66, 123.44, 118.38, 112.77, 115.88, 114.64, 112.03, 111.63, 109.71, 112.76, 112.66], "returns": [null, 0.78, -0.36, -1.71, 6.64, 1.43, -2.31, 3.03, -0.66, -0.86, 5.85, 1.52, -0.47, 0.46, 4.36, 4.03, -4.1, -4.74, 2.76, -1.07, -2.28, -0.36, -1.72, 2.78, -0.09], "cashPcts": [26.06, 26.12, 18.87, 26.23, 16.03, 27.5, 19.27, 21.83, 13.39, 20.1, 17.26, 26.58, 27.47, 21.25, 26.58, 17.85, 27.64, 24.88, 17.09, 22.05, 26.23, 13.36, 24.09, 23.09, 24.58], "otherPcts": [7.88, 7.9, 8.32, 8.19, 8.21, 8.19, 7.69, 8.67, 9.26, 9.16, 9.34, 9.49, 9.7, 9.27, 8.55, 8.7, 8.32, 8.47, 8.66, 8.48, 7.53, 7.63, 7.74, 7.4, 8.29], "topSymbols": ["AAPL", "MSFT", "AMZN", "GOOGL", "ASML", "NVDA"], "allocationSeries": {"AAPL": [15.86, 15.91, 19.93, 17.67, 21.45, 18.71, 19.74, 18.22, 23.05, 20.82, 25.87, 23.16, 22.43, 22.33, 20.08, 22.31, 20.95, 22.6, 25.67, 22.02, 20.94, 23.78, 19.1, 19.0, 21.47], "MSFT": [12.64, 11.58, 14.46, 12.56, 15.2, 13.66, 15.95, 16.58, 18.6, 15.18, 16.35, 13.57, 11.97, 12.43, 12.01, 11.9, 9.49, 10.1, 9.62, 8.17, 8.0, 7.39, 7.5, 6.97, 7.15], "AMZN": [6.99, 7.6, 7.65, 6.9, 7.94, 6.4, 9.97, 10.57, 12.08, 8.3, 7.49, 6.21, 7.53, 8.01, 6.16, 8.16, 7.57, 7.1, 8.46, 8.16, 6.49, 9.39, 8.71, 9.8, 9.69], "GOOGL": [8.43, 7.78, 7.51, 6.35, 7.81, 7.96, 6.58, 7.17, 7.6, 7.51, 8.44, 6.6, 7.62, 6.89, 6.69, 7.09, 5.78, 6.03, 5.13, 4.75, 5.09, 5.19, 5.57, 4.9, 3.64], "ASML": [3.52, 5.32, 4.9, 4.59, 7.92, 6.37, 8.1, 7.01, 6.25, 5.34, 4.81, 4.04, 3.84, 7.03, 6.93, 5.84, 4.55, 5.71, 7.25, 5.46, 3.74, 5.1, 3.66, 4.06, 2.84], "NVDA": [5.22, 5.02, 5.63, 4.86, 3.7, 3.15, 4.33, 4.34, 3.2, 2.43, 2.44, 3.41, 3.87, 2.85, 4.03, 4.99, 4.51, 3.92, 4.6, 4.1, 4.19, 4.64, 4.15, 4.03, 4.06]}, "currentAllocation": [{"symbol": "AAPL", "pct": 21.47}, {"symbol": "AMZN", "pct": 9.69}, {"symbol": "MELI", "pct": 8.4}, {"symbol": "MSFT", "pct": 7.15}, {"symbol": "META", "pct": 5.68}, {"symbol": "NVDA", "pct": 4.06}, {"symbol": "GOOGL", "pct": 3.64}, {"symbol": "TSM", "pct": 3.41}, {"symbol": "ASML", "pct": 2.84}, {"symbol": "BABA", "pct": 1.11}, {"symbol": "Other Positions", "pct": 8.29}, {"symbol": "Cash", "pct": 24.58}], "regionalAllocation": [{"region": "US", "pct": 51.69, "color": "#3b82f6"}, {"region": "LatAm", "pct": 8.4, "color": "#ec4899"}, {"region": "Taiwan", "pct": 3.41, "color": "#14b8a6"}, {"region": "Europe", "pct": 3.41, "color": "#8b5cf6"}, {"region": "China", "pct": 1.11, "color": "#ef4444"}, {"region": "Other Positions", "pct": 8.29, "color": "#64748b"}, {"region": "Cash", "pct": 24.58, "color": "#22c55e"}], "regions": ["US", "Europe", "China", "Taiwan", "LatAm"], "regionalSeries": {"US": [49.14, 47.89, 55.18, 48.34, 56.1, 49.88, 56.57, 56.88, 64.53, 54.24, 60.59, 52.95, 53.42, 52.51, 48.97, 54.45, 48.3, 49.75, 57.68, 53.23, 50.5, 58.2, 51.38, 50.91, 51.69], "Europe": [7.53, 9.45, 10.62, 9.28, 12.88, 8.79, 10.9, 9.14, 7.82, 8.42, 7.72, 6.91, 6.44, 10.63, 9.69, 8.91, 6.32, 8.25, 9.44, 6.11, 4.59, 5.77, 4.59, 4.83, 3.41], "China": [3.01, 2.45, 1.04, 0.54, 0.67, 0.59, 1.02, 0.75, 0.82, 5.2, 2.92, 1.89, 0.6, 0.57, 0.55, 2.74, 3.05, 3.19, 1.58, 1.73, 0.82, 2.6, 1.58, 1.48, 1.11], "Taiwan": [4.03, 3.61, 3.99, 4.62, 4.69, 4.17, 2.57, 2.55, 2.88, 0.65, 0.73, 1.73, 1.5, 2.7, 2.13, 3.78, 3.07, 2.74, 1.92, 2.69, 2.73, 4.22, 2.54, 3.08, 3.41], "LatAm": [2.23, 2.6, 2.4, 2.67, 1.44, 0.86, 1.48, 1.16, 1.89, 2.13, 1.62, 0.6, 1.08, 2.64, 2.81, 3.72, 2.92, 2.87, 3.82, 5.53, 6.65, 8.32, 8.19, 8.87, 8.4]}, "regionColors": {"US": "#3b82f6", "Europe": "#8b5cf6", "China": "#ef4444", "Taiwan": "#14b8a6", "LatAm": "#ec4899"}, "latest": {"date": "20250209", "indexValue": 112.66, "totalReturn": 12.66, "periodReturn": -0.09, "investedPct": 75.42, "cashPct": 24.58}};
+        const data = {"dates": ["01/23"], "rawDates": ["20260123"], "indexValues": [100.0], "returns": [0.0], "cashPcts": [4.06], "otherPcts": [16.6], "topSymbols": ["RDDT", "DUOL", "SPOT", "BILI", "ONON", "SGOV"], "allocationSeries": {"RDDT": [1.66], "DUOL": [0.56], "SPOT": [0.19], "BILI": [1.58], "ONON": [0.7], "SGOV": [3.82]}, "currentAllocation": [{"symbol": "RDDT", "pct": 18.89, "account_id": "Account A"}, {"symbol": "DUOL", "pct": 7.69, "account_id": "Account A"}, {"symbol": "SPOT", "pct": 4.87, "account_id": "Account A"}, {"symbol": "SGOV", "pct": 3.82, "account_id": "Account A"}, {"symbol": "BILI", "pct": 3.36, "account_id": "Account A"}, {"symbol": "ONON", "pct": 3.22, "account_id": "Account A"}, {"symbol": "Other Positions", "pct": 37.39, "account_id": ""}, {"symbol": "Cash", "pct": 4.06, "account_id": ""}], "regionalAllocation": [{"region": "US", "pct": 61.38, "color": "#3b82f6"}, {"region": "Europe", "pct": 22.78, "color": "#8b5cf6"}, {"region": "China", "pct": 9.61, "color": "#ef4444"}, {"region": "Canada", "pct": 2.07, "color": "#dc2626"}, {"region": "Cash", "pct": 4.06, "color": "#22c55e"}], "regions": ["US", "Europe", "China", "Canada"], "regionalSeries": {"US": [61.38], "Europe": [22.78], "China": [9.61], "Canada": [2.07]}, "regionColors": {"US": "#3b82f6", "Europe": "#8b5cf6", "China": "#ef4444", "Canada": "#dc2626"}, "latest": {"date": "20260123", "indexValue": 100.0, "totalReturn": null, "periodReturn": null, "investedPct": 95.94, "cashPct": 4.06, "cashByAccount": {"Account A": 3.79, "Account B": 0.27}, "totalByAccount": {"Account A": 86.8, "Account B": 13.2}}, "accounts": ["Account A", "Account B"], "allPositions": [{"symbol": "RDDT", "pct": 18.89, "account_id": "Account A"}, {"symbol": "DUOL", "pct": 7.69, "account_id": "Account A"}, {"symbol": "SPOT", "pct": 4.87, "account_id": "Account A"}, {"symbol": "SGOV", "pct": 3.82, "account_id": "Account A"}, {"symbol": "BILI", "pct": 3.36, "account_id": "Account A"}, {"symbol": "ONON", "pct": 3.22, "account_id": "Account A"}, {"symbol": "AMD", "pct": 2.95, "account_id": "Account A"}, {"symbol": "COUR", "pct": 2.66, "account_id": "Account A"}, {"symbol": "LIGHT", "pct": 2.07, "account_id": "Account A"}, {"symbol": "HOOD", "pct": 1.83, "account_id": "Account A"}, {"symbol": "SONO", "pct": 1.81, "account_id": "Account A"}, {"symbol": "NTES", "pct": 1.71, "account_id": "Account A"}, {"symbol": "BNP", "pct": 1.67, "account_id": "Account A"}, {"symbol": "RDDT", "pct": 1.66, "account_id": "Account B"}, {"symbol": "ZAL", "pct": 1.59, "account_id": "Account A"}, {"symbol": "BILI", "pct": 1.58, "account_id": "Account B"}, {"symbol": "TCOM", "pct": 1.43, "account_id": "Account A"}, {"symbol": "CS", "pct": 1.29, "account_id": "Account A"}, {"symbol": "IBKR", "pct": 1.28, "account_id": "Account A"}, {"symbol": "ZURN", "pct": 1.26, "account_id": "Account A"}, {"symbol": "ACA", "pct": 1.22, "account_id": "Account A"}, {"symbol": "VOW3", "pct": 1.2, "account_id": "Account A"}, {"symbol": "NVO", "pct": 1.18, "account_id": "Account A"}, {"symbol": "MBG", "pct": 1.13, "account_id": "Account A"}, {"symbol": "ADS", "pct": 0.95, "account_id": "Account A"}, {"symbol": "BABA", "pct": 0.95, "account_id": "Account A"}, {"symbol": "ILMN", "pct": 0.85, "account_id": "Account A"}, {"symbol": "ONON", "pct": 0.7, "account_id": "Account B"}, {"symbol": "SREN", "pct": 0.64, "account_id": "Account A"}, {"symbol": "TCEHY", "pct": 0.58, "account_id": "Account A"}, {"symbol": "DUOL", "pct": 0.56, "account_id": "Account B"}, {"symbol": "INGA", "pct": 0.46, "account_id": "Account A"}, {"symbol": "COUR", "pct": 0.41, "account_id": "Account B"}, {"symbol": "AIR", "pct": 0.35, "account_id": "Account A"}, {"symbol": "UBSG", "pct": 0.35, "account_id": "Account A"}, {"symbol": "SIE", "pct": 0.34, "account_id": "Account A"}, {"symbol": "HOOD", "pct": 0.2, "account_id": "Account B"}, {"symbol": "SPOT", "pct": 0.19, "account_id": "Account B"}, {"symbol": "SONO", "pct": 0.17, "account_id": "Account B"}, {"symbol": "LHA", "pct": 0.17, "account_id": "Account A"}], "snapshots": [{"date": "20260123", "positions": [{"symbol": "RDDT", "pct": 18.89, "account_id": "Account A"}, {"symbol": "DUOL", "pct": 7.69, "account_id": "Account A"}, {"symbol": "SPOT", "pct": 4.87, "account_id": "Account A"}, {"symbol": "SGOV", "pct": 3.82, "account_id": "Account A"}, {"symbol": "BILI", "pct": 3.36, "account_id": "Account A"}, {"symbol": "ONON", "pct": 3.22, "account_id": "Account A"}, {"symbol": "AMD", "pct": 2.95, "account_id": "Account A"}, {"symbol": "COUR", "pct": 2.66, "account_id": "Account A"}, {"symbol": "LIGHT", "pct": 2.07, "account_id": "Account A"}, {"symbol": "HOOD", "pct": 1.83, "account_id": "Account A"}, {"symbol": "SONO", "pct": 1.81, "account_id": "Account A"}, {"symbol": "NTES", "pct": 1.71, "account_id": "Account A"}, {"symbol": "BNP", "pct": 1.67, "account_id": "Account A"}, {"symbol": "RDDT", "pct": 1.66, "account_id": "Account B"}, {"symbol": "ZAL", "pct": 1.59, "account_id": "Account A"}, {"symbol": "BILI", "pct": 1.58, "account_id": "Account B"}, {"symbol": "TCOM", "pct": 1.43, "account_id": "Account A"}, {"symbol": "CS", "pct": 1.29, "account_id": "Account A"}, {"symbol": "IBKR", "pct": 1.28, "account_id": "Account A"}, {"symbol": "ZURN", "pct": 1.26, "account_id": "Account A"}, {"symbol": "ACA", "pct": 1.22, "account_id": "Account A"}, {"symbol": "VOW3", "pct": 1.2, "account_id": "Account A"}, {"symbol": "NVO", "pct": 1.18, "account_id": "Account A"}, {"symbol": "MBG", "pct": 1.13, "account_id": "Account A"}, {"symbol": "ADS", "pct": 0.95, "account_id": "Account A"}, {"symbol": "BABA", "pct": 0.95, "account_id": "Account A"}, {"symbol": "ILMN", "pct": 0.85, "account_id": "Account A"}, {"symbol": "ONON", "pct": 0.7, "account_id": "Account B"}, {"symbol": "SREN", "pct": 0.64, "account_id": "Account A"}, {"symbol": "TCEHY", "pct": 0.58, "account_id": "Account A"}, {"symbol": "DUOL", "pct": 0.56, "account_id": "Account B"}, {"symbol": "INGA", "pct": 0.46, "account_id": "Account A"}, {"symbol": "COUR", "pct": 0.41, "account_id": "Account B"}, {"symbol": "AIR", "pct": 0.35, "account_id": "Account A"}, {"symbol": "UBSG", "pct": 0.35, "account_id": "Account A"}, {"symbol": "SIE", "pct": 0.34, "account_id": "Account A"}, {"symbol": "HOOD", "pct": 0.2, "account_id": "Account B"}, {"symbol": "SPOT", "pct": 0.19, "account_id": "Account B"}, {"symbol": "SONO", "pct": 0.17, "account_id": "Account B"}, {"symbol": "LHA", "pct": 0.17, "account_id": "Account A"}], "cash_pct": 4.06, "cash_by_account": {"Account A": 3.79, "Account B": 0.27}, "total_by_account": {"Account A": 86.8, "Account B": 13.2}}]};
 
-        // Update stats
-        if (data.latest) {
+        // Chart.js defaults
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+
+        const pieColors = [
+            '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981',
+            '#06b6d4', '#6366f1', '#d946ef', '#f97316', '#14b8a6',
+            '#64748b', '#22c55e'
+        ];
+
+        // Region colors mapping
+        const regionColorMap = {
+            'US': '#3b82f6',
+            'Europe': '#8b5cf6',
+            'China': '#ef4444',
+            'Japan': '#f97316',
+            'Taiwan': '#14b8a6',
+            'Canada': '#dc2626',
+            'India': '#22c55e',
+            'SEAsia': '#eab308',
+            'LatAm': '#ec4899',
+            'Emerging': '#06b6d4',
+            'Intl': '#6366f1',
+            'Other': '#64748b',
+            'Cash': '#22c55e'
+        };
+
+        // Store chart instances for updates
+        let allocationChart, regionChart, allocationHistoryChart, regionHistoryChart;
+
+        // Current selected account (null = all)
+        let selectedAccount = null;
+
+        // Initialize account selector
+        function initAccountSelector() {
+            const selector = document.getElementById('accountSelector');
+            if (!data.accounts || data.accounts.length <= 1) {
+                selector.style.display = 'none';
+                return;
+            }
+
+            // Add "All" button
+            const allBtn = document.createElement('button');
+            allBtn.className = 'account-btn active';
+            allBtn.textContent = 'All';
+            allBtn.onclick = () => selectAccount(null);
+            selector.appendChild(allBtn);
+
+            // Add button for each account
+            data.accounts.forEach(acc => {
+                const btn = document.createElement('button');
+                btn.className = 'account-btn';
+                btn.textContent = acc;
+                btn.onclick = () => selectAccount(acc);
+                selector.appendChild(btn);
+            });
+        }
+
+        // Select an account and update all views
+        function selectAccount(account) {
+            selectedAccount = account;
+
+            // Update button states
+            document.querySelectorAll('.account-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((account === null && btn.textContent === 'All') ||
+                    btn.textContent === account) {
+                    btn.classList.add('active');
+                }
+            });
+
+            updateAllViews();
+        }
+
+        // Get filtered positions for selected account
+        function getFilteredPositions() {
+            if (!data.allPositions) return data.currentAllocation;
+            if (selectedAccount === null) return data.currentAllocation;
+
+            const filtered = data.allPositions.filter(p => p.account_id === selectedAccount);
+            const cashPct = data.latest.cashByAccount?.[selectedAccount] || 0;
+            // Use totalByAccount to get true account total (includes hidden options)
+            const accountTotal = data.latest.totalByAccount?.[selectedAccount] || 0;
+
+            // Sort by allocation
+            const sorted = [...filtered].sort((a, b) => b.pct - a.pct);
+
+            // Take top 6 (consistent with Allocation Over Time chart)
+            const top6 = sorted.slice(0, 6);
+            const top6Pct = top6.reduce((sum, p) => sum + p.pct, 0);
+            const remainingPct = sorted.slice(6).reduce((sum, p) => sum + p.pct, 0);
+            const visiblePositionsPct = top6Pct + remainingPct;
+
+            // Calculate "Other Positions" = account total - visible positions - cash
+            // This includes hidden options without exposing the specific amount
+            const otherPct = Math.max(0, accountTotal - visiblePositionsPct - cashPct);
+
+            // Normalize to 100%
+            const result = top6.map(p => ({
+                symbol: p.symbol,
+                pct: accountTotal > 0 ? (p.pct / accountTotal) * 100 : 0,
+                account_id: p.account_id
+            }));
+
+            // Add "Other Positions" (remaining stocks + hidden options)
+            const totalOtherPct = remainingPct + otherPct;
+            if (totalOtherPct > 0.1) {
+                result.push({ symbol: 'Other Positions', pct: accountTotal > 0 ? (totalOtherPct / accountTotal) * 100 : 0 });
+            }
+            if (cashPct > 0.1) {
+                result.push({ symbol: 'Cash', pct: accountTotal > 0 ? (cashPct / accountTotal) * 100 : 0 });
+            }
+
+            return result;
+        }
+
+        // Calculate regional allocation for filtered positions
+        function getFilteredRegionalAllocation() {
+            if (selectedAccount === null) return data.regionalAllocation;
+
+            const positions = data.allPositions.filter(p => p.account_id === selectedAccount);
+            const cashPct = data.latest.cashByAccount?.[selectedAccount] || 0;
+            // Use totalByAccount to get true account total (includes hidden options)
+            const total = data.latest.totalByAccount?.[selectedAccount] || 0;
+
+            if (total === 0) return [];
+
+            // Calculate region totals
+            const regionTotals = {};
+            positions.forEach(p => {
+                const region = getRegion(p.symbol);
+                regionTotals[region] = (regionTotals[region] || 0) + p.pct;
+            });
+
+            // Add hidden options to US region (they're US-based options)
+            const visiblePct = positions.reduce((sum, p) => sum + p.pct, 0);
+            const hiddenPct = Math.max(0, total - visiblePct - cashPct);
+            if (hiddenPct > 0) {
+                regionTotals['US'] = (regionTotals['US'] || 0) + hiddenPct;
+            }
+
+            // Normalize and build result
+            const result = Object.entries(regionTotals)
+                .map(([region, pct]) => ({
+                    region,
+                    pct: (pct / total) * 100,
+                    color: regionColorMap[region] || '#64748b'
+                }))
+                .sort((a, b) => b.pct - a.pct);
+
+            if (cashPct > 0.1) {
+                result.push({
+                    region: 'Cash',
+                    pct: (cashPct / total) * 100,
+                    color: '#22c55e'
+                });
+            }
+
+            return result;
+        }
+
+        // Simple region lookup (matches Python logic)
+        function getRegion(symbol) {
+            const regionMap = {"BABA": "China", "SONO": "US", "COUR": "US", "INGA": "Europe", "CS": "Europe", "MBG": "Europe", "SGOV": "US", "BNP": "Europe", "ONON": "Europe", "ZAL": "Europe", "ZURN": "Europe", "AIR": "Europe", "NVO": "Europe", "TCOM": "China", "SREN": "Europe", "AMD": "US", "LIGHT": "Canada", "DUOL": "US", "TCEHY": "China", "ACA": "Europe", "SPOT": "Europe", "VOW3": "Europe", "SIE": "Europe", "BILI": "China", "ADS": "Europe", "ILMN": "US", "RDDT": "US", "NTES": "China", "HOOD": "US", "LHA": "Europe", "UBSG": "Europe", "IBKR": "US"};
+            return regionMap[symbol] || 'Other';
+        }
+
+        // Update stats display
+        function updateStats() {
+            if (!data.latest) return;
+
             document.getElementById('lastUpdate').textContent = data.latest.date;
             document.getElementById('indexValue').textContent = data.latest.indexValue.toFixed(2);
 
@@ -257,256 +470,385 @@
                 periodReturnEl.className = 'stat-value ' + (data.latest.periodReturn >= 0 ? 'positive' : 'negative');
             }
 
-            document.getElementById('investedPct').textContent = data.latest.investedPct.toFixed(1) + '%';
+            // Calculate invested % for selected account
+            let investedPct = data.latest.investedPct;
+            let investedLabelText = 'Invested';
+            if (selectedAccount !== null) {
+                // Use totalByAccount to get true account total (includes hidden options)
+                const accountTotal = data.latest.totalByAccount?.[selectedAccount] || 0;
+                const cashPct = data.latest.cashByAccount?.[selectedAccount] || 0;
+                // Invested = total - cash (includes visible positions + hidden options)
+                investedPct = accountTotal > 0 ? ((accountTotal - cashPct) / accountTotal) * 100 : 0;
+            }
+            document.getElementById('investedPct').textContent = investedPct.toFixed(1) + '%';
+            document.getElementById('investedLabel').textContent = investedLabelText;
         }
 
-        // Populate positions table
-        const tbody = document.getElementById('positionsTable');
-        data.currentAllocation.forEach(pos => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${pos.symbol}</td>
-                <td>
-                    <div>${pos.pct.toFixed(2)}%</div>
-                    <div class="bar" style="width: ${Math.min(pos.pct, 100)}%"></div>
-                </td>
-                <td></td>
-            `;
-            tbody.appendChild(tr);
-        });
+        // Update positions table
+        function updatePositionsTable() {
+            const tbody = document.getElementById('positionsTable');
+            tbody.innerHTML = '';
 
-        // Chart.js defaults
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = '#334155';
+            const positions = getFilteredPositions();
+            positions.forEach(pos => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${pos.symbol}</td>
+                    <td>
+                        <div>${pos.pct.toFixed(2)}%</div>
+                        <div class="bar" style="width: ${Math.min(pos.pct, 100)}%"></div>
+                    </td>
+                    <td></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
 
-        // Index Chart
-        new Chart(document.getElementById('indexChart'), {
-            type: 'line',
-            data: {
-                labels: data.dates,
-                datasets: [{
-                    label: 'Index Value',
-                    data: data.indexValues,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        // Update allocation chart
+        function updateAllocationChart() {
+            const positions = getFilteredPositions();
+            allocationChart.data.labels = positions.map(p => p.symbol);
+            allocationChart.data.datasets[0].data = positions.map(p => p.pct);
+            allocationChart.data.datasets[0].backgroundColor = pieColors.slice(0, positions.length);
+            allocationChart.update();
+        }
+
+        // Update region chart
+        function updateRegionChart() {
+            const regions = getFilteredRegionalAllocation();
+            regionChart.data.labels = regions.map(r => r.region);
+            regionChart.data.datasets[0].data = regions.map(r => r.pct);
+            regionChart.data.datasets[0].backgroundColor = regions.map(r => r.color);
+            regionChart.update();
+        }
+
+        // Compute allocation history data for selected account
+        function computeAllocationHistoryData() {
+            const snapshots = data.snapshots || [];
+            if (snapshots.length === 0) return { topSymbols: [], series: {}, otherStocksPcts: [], otherPcts: [], cashPcts: [] };
+
+            // Get symbol totals across all snapshots (filtered by account)
+            const symbolTotals = {};
+            snapshots.forEach(snap => {
+                let positions = snap.positions;
+                if (selectedAccount !== null) {
+                    positions = positions.filter(p => p.account_id === selectedAccount);
+                }
+                positions.forEach(p => {
+                    symbolTotals[p.symbol] = (symbolTotals[p.symbol] || 0) + p.pct;
+                });
+            });
+
+            // Get top 6 symbols
+            const topSymbols = Object.keys(symbolTotals)
+                .sort((a, b) => symbolTotals[b] - symbolTotals[a])
+                .slice(0, 6);
+
+            // Build series for each symbol
+            const series = {};
+            topSymbols.forEach(symbol => { series[symbol] = []; });
+            const otherPositionsPcts = [];
+            const cashPcts = [];
+
+            snapshots.forEach(snap => {
+                let positions = snap.positions;
+                let cashPct = snap.cash_pct;
+                let total = 100;  // Default for "All" view
+
+                if (selectedAccount !== null) {
+                    positions = positions.filter(p => p.account_id === selectedAccount);
+                    cashPct = snap.cash_by_account?.[selectedAccount] || 0;
+                    // Use total_by_account to get true account total (includes hidden options)
+                    total = snap.total_by_account?.[selectedAccount] || 0;
+                }
+
+                const allPositionsPct = positions.reduce((s, p) => s + p.pct, 0);
+
+                const posMap = {};
+                positions.forEach(p => {
+                    posMap[p.symbol] = (posMap[p.symbol] || 0) + p.pct;
+                });
+
+                let topSum = 0;
+                topSymbols.forEach(symbol => {
+                    const pct = posMap[symbol] || 0;
+                    topSum += pct;
+                    series[symbol].push(total > 0 ? (pct / total) * 100 : 0);
+                });
+
+                // Other positions = account total - top symbols - cash
+                // This includes remaining visible positions + hidden options
+                const otherPositionsPct = total - topSum - cashPct;
+                otherPositionsPcts.push(total > 0 ? Math.max(0, (otherPositionsPct / total) * 100) : 0);
+                cashPcts.push(total > 0 ? (cashPct / total) * 100 : 0);
+            });
+
+            return { topSymbols, series, otherPositionsPcts, cashPcts };
+        }
+
+        // Compute regional history data for selected account
+        function computeRegionalHistoryData() {
+            const snapshots = data.snapshots || [];
+            if (snapshots.length === 0) return { regions: [], series: {}, cashPcts: [] };
+
+            // Get all regions
+            const allRegions = new Set();
+            snapshots.forEach(snap => {
+                let positions = snap.positions;
+                if (selectedAccount !== null) {
+                    positions = positions.filter(p => p.account_id === selectedAccount);
+                }
+                positions.forEach(p => allRegions.add(getRegion(p.symbol)));
+            });
+
+            const regions = Array.from(allRegions).sort();
+            const series = {};
+            regions.forEach(r => { series[r] = []; });
+            const cashPcts = [];
+
+            snapshots.forEach(snap => {
+                let positions = snap.positions;
+                let cashPct = snap.cash_pct;
+                let total = 100;  // Default for "All" view
+
+                if (selectedAccount !== null) {
+                    positions = positions.filter(p => p.account_id === selectedAccount);
+                    cashPct = snap.cash_by_account?.[selectedAccount] || 0;
+                    // Use total_by_account to get true account total (includes hidden options)
+                    total = snap.total_by_account?.[selectedAccount] || 0;
+                }
+
+                // Calculate region totals
+                const regionTotals = {};
+                positions.forEach(p => {
+                    const region = getRegion(p.symbol);
+                    regionTotals[region] = (regionTotals[region] || 0) + p.pct;
+                });
+
+                // Add hidden options to US region (they're US-based options)
+                const visiblePct = positions.reduce((s, p) => s + p.pct, 0);
+                const hiddenPct = Math.max(0, total - visiblePct - cashPct);
+                if (hiddenPct > 0) {
+                    regionTotals['US'] = (regionTotals['US'] || 0) + hiddenPct;
+                }
+
+                regions.forEach(region => {
+                    const pct = regionTotals[region] || 0;
+                    series[region].push(total > 0 ? (pct / total) * 100 : 0);
+                });
+                cashPcts.push(total > 0 ? (cashPct / total) * 100 : 0);
+            });
+
+            return { regions, series, cashPcts };
+        }
+
+        // Update allocation history chart
+        function updateAllocationHistoryChart() {
+            const histData = computeAllocationHistoryData();
+            const datasets = [];
+            let colorIdx = 0;
+
+            histData.topSymbols.forEach(symbol => {
+                datasets.push({
+                    label: symbol,
+                    data: histData.series[symbol],
+                    backgroundColor: pieColors[colorIdx % pieColors.length],
                     fill: true,
                     tension: 0.3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    annotation: {
-                        annotations: {
-                            baseline: {
-                                type: 'line',
-                                yMin: 100,
-                                yMax: 100,
-                                borderColor: '#64748b',
-                                borderDash: [5, 5],
-                            }
+                });
+                colorIdx++;
+            });
+            datasets.push({
+                label: 'Other Positions',
+                data: histData.otherPositionsPcts,
+                backgroundColor: '#64748b',
+                fill: true,
+                tension: 0.3,
+            });
+            datasets.push({
+                label: 'Cash',
+                data: histData.cashPcts,
+                backgroundColor: '#22c55e',
+                fill: true,
+                tension: 0.3,
+            });
+
+            allocationHistoryChart.data.datasets = datasets;
+            allocationHistoryChart.update();
+        }
+
+        // Update regional history chart
+        function updateRegionalHistoryChart() {
+            const histData = computeRegionalHistoryData();
+            const datasets = [];
+
+            histData.regions.forEach(region => {
+                datasets.push({
+                    label: region,
+                    data: histData.series[region],
+                    backgroundColor: regionColorMap[region] || '#64748b',
+                    fill: true,
+                    tension: 0.3,
+                });
+            });
+            datasets.push({
+                label: 'Cash',
+                data: histData.cashPcts,
+                backgroundColor: '#22c55e',
+                fill: true,
+                tension: 0.3,
+            });
+
+            regionHistoryChart.data.datasets = datasets;
+            regionHistoryChart.update();
+        }
+
+        // Update all views
+        function updateAllViews() {
+            updateStats();
+            updatePositionsTable();
+            updateAllocationChart();
+            updateRegionChart();
+            updateAllocationHistoryChart();
+            updateRegionalHistoryChart();
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Index Chart (not filtered by account - shows total portfolio)
+            new Chart(document.getElementById('indexChart'), {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: 'Index Value',
+                        data: data.indexValues,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: false } }
+                }
+            });
+
+            // Returns Chart (not filtered by account)
+            new Chart(document.getElementById('returnsChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: 'Return %',
+                        data: data.returns,
+                        backgroundColor: data.returns.map(r => r >= 0 ? '#22c55e' : '#ef4444'),
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Allocation Bar Chart (filtered by account)
+            allocationChart = new Chart(document.getElementById('allocationChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.currentAllocation.map(p => p.symbol),
+                    datasets: [{
+                        data: data.currentAllocation.map(p => p.pct),
+                        backgroundColor: pieColors.slice(0, data.currentAllocation.length),
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                    }
                 }
-            }
-        });
-
-        // Returns Chart
-        new Chart(document.getElementById('returnsChart'), {
-            type: 'bar',
-            data: {
-                labels: data.dates,
-                datasets: [{
-                    label: 'Return %',
-                    data: data.returns,
-                    backgroundColor: data.returns.map(r => r >= 0 ? '#22c55e' : '#ef4444'),
-                    borderRadius: 4,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    }
-                }
-            }
-        });
-
-        // Allocation Pie Chart
-        const pieColors = [
-            '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981',
-            '#06b6d4', '#6366f1', '#d946ef', '#f97316', '#14b8a6',
-            '#64748b', '#22c55e'
-        ];
-
-        new Chart(document.getElementById('allocationChart'), {
-            type: 'doughnut',
-            data: {
-                labels: data.currentAllocation.map(p => p.symbol),
-                datasets: [{
-                    data: data.currentAllocation.map(p => p.pct),
-                    backgroundColor: pieColors.slice(0, data.currentAllocation.length),
-                    borderWidth: 0,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                    },
-                },
-            }
-        });
-
-        // Allocation History (Stacked Area)
-        const stackedDatasets = [];
-        let colorIdx = 0;
-
-        data.topSymbols.forEach(symbol => {
-            stackedDatasets.push({
-                label: symbol,
-                data: data.allocationSeries[symbol],
-                backgroundColor: pieColors[colorIdx % pieColors.length],
-                fill: true,
-                tension: 0.3,
             });
-            colorIdx++;
-        });
 
-        stackedDatasets.push({
-            label: 'Other Positions',
-            data: data.otherPcts,
-            backgroundColor: '#64748b',
-            fill: true,
-            tension: 0.3,
-        });
-
-        stackedDatasets.push({
-            label: 'Cash',
-            data: data.cashPcts,
-            backgroundColor: '#22c55e',
-            fill: true,
-            tension: 0.3,
-        });
-
-        new Chart(document.getElementById('allocationHistoryChart'), {
-            type: 'line',
-            data: {
-                labels: data.dates,
-                datasets: stackedDatasets,
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
-                },
-                scales: {
-                    y: {
-                        stacked: true,
-                        max: 100,
-                    },
-                    x: {
-                        stacked: true,
+            // Allocation History (filtered by account)
+            allocationHistoryChart = new Chart(document.getElementById('allocationHistoryChart'), {
+                type: 'line',
+                data: { labels: data.dates, datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { stacked: true, max: 100 },
+                        x: { stacked: true }
                     }
                 }
-            }
-        });
-
-        // Regional Allocation Pie Chart
-        new Chart(document.getElementById('regionChart'), {
-            type: 'doughnut',
-            data: {
-                labels: data.regionalAllocation.map(r => r.region),
-                datasets: [{
-                    data: data.regionalAllocation.map(r => r.pct),
-                    backgroundColor: data.regionalAllocation.map(r => r.color),
-                    borderWidth: 0,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                    },
-                },
-            }
-        });
-
-        // Regional Allocation History (Stacked Area)
-        const regionDatasets = [];
-
-        data.regions.forEach(region => {
-            regionDatasets.push({
-                label: region,
-                data: data.regionalSeries[region],
-                backgroundColor: data.regionColors[region],
-                fill: true,
-                tension: 0.3,
             });
-        });
+            updateAllocationHistoryChart();
 
-        regionDatasets.push({
-            label: 'Other Positions',
-            data: data.otherPcts,
-            backgroundColor: '#64748b',
-            fill: true,
-            tension: 0.3,
-        });
-
-        regionDatasets.push({
-            label: 'Cash',
-            data: data.cashPcts,
-            backgroundColor: '#22c55e',
-            fill: true,
-            tension: 0.3,
-        });
-
-        new Chart(document.getElementById('regionHistoryChart'), {
-            type: 'line',
-            data: {
-                labels: data.dates,
-                datasets: regionDatasets,
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
+            // Regional Allocation Bar Chart (filtered by account)
+            regionChart = new Chart(document.getElementById('regionChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.regionalAllocation.map(r => r.region),
+                    datasets: [{
+                        data: data.regionalAllocation.map(r => r.pct),
+                        backgroundColor: data.regionalAllocation.map(r => r.color),
+                        borderRadius: 4,
+                    }]
                 },
-                scales: {
-                    y: {
-                        stacked: true,
-                        max: 100,
-                    },
-                    x: {
-                        stacked: true,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
                     }
                 }
-            }
-        });
+            });
+
+            // Regional History (filtered by account)
+            regionHistoryChart = new Chart(document.getElementById('regionHistoryChart'), {
+                type: 'line',
+                data: { labels: data.dates, datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { stacked: true, max: 100 },
+                        x: { stacked: true }
+                    }
+                }
+            });
+            updateRegionalHistoryChart();
+        }
+
+        // Initialize everything
+        initAccountSelector();
+        initCharts();
+        updateStats();
+        updatePositionsTable();
     </script>
 </body>
 </html>
