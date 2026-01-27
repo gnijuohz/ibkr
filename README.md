@@ -133,7 +133,7 @@ cd docs && python -m http.server 8000
 The generated site includes:
 
 1. **Portfolio Index** - Line chart showing value relative to baseline (100)
-2. **Monthly Returns** - Bar chart of period-over-period returns
+2. **Period Returns** - Bar chart of period-over-period returns
 3. **Current Allocation** - Horizontal bar chart of top 6 positions + Other + Cash
 4. **Allocation Over Time** - Stacked area chart showing position changes
 5. **Regional Allocation** - Horizontal bar chart by geographic region

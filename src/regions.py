@@ -186,7 +186,7 @@ REGION_CONFIG = {
     "China": {"order": 3, "color": "#ef4444"},   # Red
     "Japan": {"order": 4, "color": "#f97316"},   # Orange
     "Taiwan": {"order": 5, "color": "#14b8a6"},  # Teal
-    "Canada": {"order": 6, "color": "#dc2626"},  # Red-600
+    "Canada": {"order": 6, "color": "#a855f7"},  # Purple-500
     "India": {"order": 7, "color": "#22c55e"},   # Green
     "SEAsia": {"order": 8, "color": "#eab308"},  # Yellow
     "LatAm": {"order": 9, "color": "#ec4899"},   # Pink

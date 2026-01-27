@@ -452,7 +452,7 @@ def _generate_html(history: PortfolioHistory) -> str:
             </div>
 
             <div class="chart-card">
-                <h2>Monthly Returns</h2>
+                <h2>Period Returns</h2>
                 <div class="chart-container">
                     <canvas id="returnsChart"></canvas>
                 </div>
@@ -527,7 +527,7 @@ def _generate_html(history: PortfolioHistory) -> str:
             'China': '#ef4444',
             'Japan': '#f97316',
             'Taiwan': '#14b8a6',
-            'Canada': '#dc2626',
+            'Canada': '#a855f7',
             'India': '#22c55e',
             'SEAsia': '#eab308',
             'LatAm': '#ec4899',
@@ -677,11 +677,24 @@ def _generate_html(history: PortfolioHistory) -> str:
             return regionMap[symbol] || 'Other';
         }}
 
+        // Format date as "Jan 23rd, 2026"
+        function formatDisplayDate(dateStr) {{
+            if (!dateStr) return '';
+            const year = dateStr.slice(0, 4);
+            const month = dateStr.slice(4, 6);
+            const day = dateStr.slice(6, 8);
+            const date = new Date(year, month - 1, day);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const d = date.getDate();
+            const suffix = (d === 1 || d === 21 || d === 31) ? 'st' : (d === 2 || d === 22) ? 'nd' : (d === 3 || d === 23) ? 'rd' : 'th';
+            return months[date.getMonth()] + ' ' + d + suffix + ', ' + date.getFullYear();
+        }}
+
         // Update stats display
         function updateStats() {{
             if (!data.latest) return;
 
-            document.getElementById('lastUpdate').textContent = data.latest.date;
+            document.getElementById('lastUpdate').textContent = formatDisplayDate(data.latest.date);
             document.getElementById('indexValue').textContent = data.latest.indexValue.toFixed(2);
 
             const totalReturnEl = document.getElementById('totalReturn');
@@ -1020,9 +1033,17 @@ def _generate_html(history: PortfolioHistory) -> str:
                 options: {{
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {{ legend: {{ position: 'bottom' }} }},
+                    interaction: {{ mode: 'index', intersect: false }},
+                    plugins: {{
+                        legend: {{ position: 'bottom' }},
+                        tooltip: {{
+                            callbacks: {{
+                                label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%'
+                            }}
+                        }}
+                    }},
                     scales: {{
-                        y: {{ stacked: true, max: 100 }},
+                        y: {{ stacked: true, max: 100, ticks: {{ callback: v => v + '%' }} }},
                         x: {{ stacked: true }}
                     }}
                 }}
@@ -1062,9 +1083,17 @@ def _generate_html(history: PortfolioHistory) -> str:
                 options: {{
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {{ legend: {{ position: 'bottom' }} }},
+                    interaction: {{ mode: 'index', intersect: false }},
+                    plugins: {{
+                        legend: {{ position: 'bottom' }},
+                        tooltip: {{
+                            callbacks: {{
+                                label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%'
+                            }}
+                        }}
+                    }},
                     scales: {{
-                        y: {{ stacked: true, max: 100 }},
+                        y: {{ stacked: true, max: 100, ticks: {{ callback: v => v + '%' }} }},
                         x: {{ stacked: true }}
                     }}
                 }}
