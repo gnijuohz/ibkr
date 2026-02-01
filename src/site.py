@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .config import PROJECT_ROOT
 from .portfolio import PortfolioHistory, PublicSnapshot
@@ -15,12 +15,87 @@ from .regions import get_region, get_region_color, get_region_order, REGION_CONF
 SITE_DIR = PROJECT_ROOT / "docs"
 
 
+def _fetch_benchmark_data(dates: list[str], symbols: list[str] = ["SPY", "QQQ"]) -> dict[str, list[float]]:
+    """Fetch benchmark data and normalize to 100 at the first date.
+
+    Args:
+        dates: List of dates in YYYYMMDD format
+        symbols: List of benchmark symbols to fetch
+
+    Returns:
+        Dict mapping symbol to list of normalized values (starting at 100)
+    """
+    try:
+        import yfinance as yf
+    except ImportError:
+        return {}
+
+    if not dates:
+        return {}
+
+    # Parse dates
+    parsed_dates = []
+    for d in dates:
+        try:
+            parsed_dates.append(datetime.strptime(d, "%Y%m%d"))
+        except ValueError:
+            try:
+                parsed_dates.append(datetime.strptime(d, "%Y-%m-%d"))
+            except ValueError:
+                continue
+
+    if not parsed_dates:
+        return {}
+
+    # Fetch data with buffer for weekends/holidays
+    start_date = min(parsed_dates) - timedelta(days=7)
+    end_date = max(parsed_dates) + timedelta(days=1)
+
+    result = {}
+    for symbol in symbols:
+        try:
+            ticker = yf.Ticker(symbol)
+            hist = ticker.history(start=start_date, end=end_date)
+
+            if hist.empty:
+                continue
+
+            # Get closing prices for each portfolio date (use closest available)
+            prices = []
+            for target_date in parsed_dates:
+                # Find closest date on or before target
+                available_dates = hist.index[hist.index <= target_date.strftime("%Y-%m-%d %H:%M:%S%z").split()[0] + " 00:00:00-05:00"]
+                if len(available_dates) == 0:
+                    # Try without timezone
+                    mask = hist.index.date <= target_date.date()
+                    available = hist[mask]
+                    if len(available) > 0:
+                        prices.append(available['Close'].iloc[-1])
+                    else:
+                        prices.append(None)
+                else:
+                    prices.append(hist.loc[available_dates[-1], 'Close'])
+
+            # Normalize to 100 at first date
+            if prices and prices[0] is not None and prices[0] > 0:
+                base = prices[0]
+                normalized = [round((p / base) * 100, 2) if p is not None else None for p in prices]
+                result[symbol] = normalized
+        except Exception:
+            continue
+
+    return result
+
+
 def _generate_html(history: PortfolioHistory) -> str:
     """Generate the complete HTML page with embedded data and charts."""
 
     # Prepare data for charts
     dates = [s.date for s in history.snapshots]
     index_values = [round(s.index_value, 2) for s in history.snapshots]
+
+    # Fetch benchmark data (SPY and QQQ)
+    benchmark_data = _fetch_benchmark_data(dates, ["SPY", "QQQ"])
     returns = [round(s.period_return_pct, 2) if s.period_return_pct is not None else None
                for s in history.snapshots]
     cash_pcts = [round(s.cash_pct, 2) for s in history.snapshots]
@@ -189,6 +264,7 @@ def _generate_html(history: PortfolioHistory) -> str:
         "dates": formatted_dates,
         "rawDates": dates,
         "indexValues": index_values,
+        "benchmarks": benchmark_data,
         "returns": returns,
         "cashPcts": cash_pcts,
         "otherPcts": other_pcts,
@@ -434,10 +510,6 @@ def _generate_html(history: PortfolioHistory) -> str:
                 <div class="stat-value" id="totalReturn">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Period Return</div>
-                <div class="stat-value" id="periodReturn">-</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-label" id="investedLabel">Invested</div>
                 <div class="stat-value" id="investedPct">-</div>
             </div>
@@ -445,18 +517,12 @@ def _generate_html(history: PortfolioHistory) -> str:
 
         <div class="charts-grid">
             <div class="chart-card">
-                <h2>Portfolio Index (Baseline = 100)</h2>
+                <h2>Portfolio vs Benchmarks (Baseline = 100)</h2>
                 <div class="chart-container">
                     <canvas id="indexChart"></canvas>
                 </div>
             </div>
 
-            <div class="chart-card">
-                <h2>Period Returns</h2>
-                <div class="chart-container">
-                    <canvas id="returnsChart"></canvas>
-                </div>
-            </div>
 
             <div class="chart-card">
                 <h2>Current Allocation</h2>
@@ -704,12 +770,6 @@ def _generate_html(history: PortfolioHistory) -> str:
                 totalReturnEl.className = 'stat-value ' + (data.latest.totalReturn >= 0 ? 'positive' : 'negative');
             }}
 
-            const periodReturnEl = document.getElementById('periodReturn');
-            if (data.latest.periodReturn !== null) {{
-                const sign = data.latest.periodReturn >= 0 ? '+' : '';
-                periodReturnEl.textContent = sign + data.latest.periodReturn.toFixed(2) + '%';
-                periodReturnEl.className = 'stat-value ' + (data.latest.periodReturn >= 0 ? 'positive' : 'negative');
-            }}
 
             // Calculate invested % for selected account
             let investedPct = data.latest.investedPct;
@@ -956,49 +1016,76 @@ def _generate_html(history: PortfolioHistory) -> str:
 
         // Initialize charts
         function initCharts() {{
-            // Index Chart (not filtered by account - shows total portfolio)
+            // Index Chart with benchmark comparison
+            const indexDatasets = [{{
+                label: 'Portfolio',
+                data: data.indexValues,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: false,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                borderWidth: 3,
+            }}];
+
+            // Add SPY benchmark if available
+            if (data.benchmarks && data.benchmarks.SPY) {{
+                indexDatasets.push({{
+                    label: 'SPY',
+                    data: data.benchmarks.SPY,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                }});
+            }}
+
+            // Add QQQ benchmark if available
+            if (data.benchmarks && data.benchmarks.QQQ) {{
+                indexDatasets.push({{
+                    label: 'QQQ',
+                    data: data.benchmarks.QQQ,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    borderWidth: 2,
+                    borderDash: [2, 2],
+                }});
+            }}
+
             new Chart(document.getElementById('indexChart'), {{
                 type: 'line',
                 data: {{
                     labels: data.dates,
-                    datasets: [{{
-                        label: 'Index Value',
-                        data: data.indexValues,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                    }}]
+                    datasets: indexDatasets
                 }},
                 options: {{
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {{ legend: {{ display: false }} }},
+                    plugins: {{
+                        legend: {{
+                            display: true,
+                            position: 'top',
+                            labels: {{ usePointStyle: true }}
+                        }},
+                        tooltip: {{
+                            callbacks: {{
+                                label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2)
+                            }}
+                        }}
+                    }},
                     scales: {{ y: {{ beginAtZero: false }} }}
                 }}
             }});
 
-            // Returns Chart (not filtered by account)
-            new Chart(document.getElementById('returnsChart'), {{
-                type: 'bar',
-                data: {{
-                    labels: data.dates,
-                    datasets: [{{
-                        label: 'Return %',
-                        data: data.returns,
-                        backgroundColor: data.returns.map(r => r >= 0 ? '#22c55e' : '#ef4444'),
-                        borderRadius: 4,
-                    }}]
-                }},
-                options: {{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {{ legend: {{ display: false }} }},
-                    scales: {{ y: {{ beginAtZero: true }} }}
-                }}
-            }});
 
             // Allocation Bar Chart (filtered by account)
             allocationChart = new Chart(document.getElementById('allocationChart'), {{
