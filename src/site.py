@@ -756,20 +756,54 @@ def _generate_html(history: PortfolioHistory) -> str:
             return months[date.getMonth()] + ' ' + d + suffix + ', ' + date.getFullYear();
         }}
 
+        // Calculate per-account index values from snapshots
+        function calculateAccountIndex(account) {{
+            if (!data.snapshots || data.snapshots.length === 0) return null;
+
+            // Get account's % of total at each snapshot, multiply by portfolio index
+            const accountValues = [];
+            for (let i = 0; i < data.snapshots.length; i++) {{
+                const snap = data.snapshots[i];
+                const accountPct = snap.total_by_account?.[account] || 0;
+                const portfolioIndex = data.indexValues[i];
+                // Account value = (account % of total) × portfolio index / 100
+                accountValues.push((accountPct / 100) * portfolioIndex);
+            }}
+
+            // Normalize to 100 at first snapshot
+            const baseValue = accountValues[0];
+            if (!baseValue || baseValue === 0) return null;
+
+            const normalizedValues = accountValues.map(v => (v / baseValue) * 100);
+            return normalizedValues;
+        }}
+
         // Update stats display
         function updateStats() {{
             if (!data.latest) return;
 
             document.getElementById('lastUpdate').textContent = formatDisplayDate(data.latest.date);
-            document.getElementById('indexValue').textContent = data.latest.indexValue.toFixed(2);
 
-            const totalReturnEl = document.getElementById('totalReturn');
-            if (data.latest.totalReturn !== null) {{
-                const sign = data.latest.totalReturn >= 0 ? '+' : '';
-                totalReturnEl.textContent = sign + data.latest.totalReturn.toFixed(2) + '%';
-                totalReturnEl.className = 'stat-value ' + (data.latest.totalReturn >= 0 ? 'positive' : 'negative');
+            let indexValue = data.latest.indexValue;
+            let totalReturn = data.latest.totalReturn;
+
+            // Calculate per-account stats if an account is selected
+            if (selectedAccount !== null) {{
+                const accountIndexValues = calculateAccountIndex(selectedAccount);
+                if (accountIndexValues && accountIndexValues.length > 0) {{
+                    indexValue = accountIndexValues[accountIndexValues.length - 1];
+                    totalReturn = indexValue - 100;
+                }}
             }}
 
+            document.getElementById('indexValue').textContent = indexValue.toFixed(2);
+
+            const totalReturnEl = document.getElementById('totalReturn');
+            if (totalReturn !== null) {{
+                const sign = totalReturn >= 0 ? '+' : '';
+                totalReturnEl.textContent = sign + totalReturn.toFixed(2) + '%';
+                totalReturnEl.className = 'stat-value ' + (totalReturn >= 0 ? 'positive' : 'negative');
+            }}
 
             // Calculate invested % for selected account
             let investedPct = data.latest.investedPct;
