@@ -198,8 +198,8 @@ REGION_CONFIG = {
 
 def get_region(symbol: str) -> str:
     """Get the region for a stock symbol."""
-    # Clean up symbol (remove suffixes like .L, .HK, etc.)
-    clean_symbol = symbol.split(".")[0].upper()
+    # Handle options symbols (e.g., "RDDT  260206C00240000" -> "RDDT")
+    clean_symbol = symbol.strip().split()[0].split(".")[0].upper()
     return SYMBOL_REGIONS.get(clean_symbol, DEFAULT_REGION)
 
 
@@ -217,7 +217,7 @@ def get_unmapped_symbols(symbols: list[str]) -> list[str]:
     """Return list of symbols that don't have a region mapping."""
     unmapped = []
     for symbol in symbols:
-        clean_symbol = symbol.split(".")[0].upper()
+        clean_symbol = symbol.strip().split()[0].split(".")[0].upper()
         if clean_symbol not in SYMBOL_REGIONS:
             unmapped.append(symbol)
     return unmapped

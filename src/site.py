@@ -604,7 +604,7 @@ def _generate_html(history: PortfolioHistory) -> str:
         }};
 
         // Store chart instances for updates
-        let allocationChart, regionChart, allocationHistoryChart, regionHistoryChart;
+        let indexChart, allocationChart, regionChart, allocationHistoryChart, regionHistoryChart;
 
         // Current selected account (null = all)
         let selectedAccount = null;
@@ -1038,10 +1038,31 @@ def _generate_html(history: PortfolioHistory) -> str:
             regionHistoryChart.update();
         }}
 
+        // Update index chart for selected account
+        function updateIndexChart() {{
+            if (!indexChart) return;
+
+            let portfolioData;
+            let label;
+            if (selectedAccount === null) {{
+                portfolioData = data.indexValues;
+                label = 'Portfolio';
+            }} else {{
+                const accountIndex = calculateAccountIndex(selectedAccount);
+                portfolioData = accountIndex || data.indexValues;
+                label = selectedAccount;
+            }}
+
+            indexChart.data.datasets[0].data = portfolioData;
+            indexChart.data.datasets[0].label = label;
+            indexChart.update();
+        }}
+
         // Update all views
         function updateAllViews() {{
             updateStats();
             updatePositionsTable();
+            updateIndexChart();
             updateAllocationChart();
             updateRegionChart();
             updateAllocationHistoryChart();
@@ -1095,7 +1116,7 @@ def _generate_html(history: PortfolioHistory) -> str:
                 }});
             }}
 
-            new Chart(document.getElementById('indexChart'), {{
+            indexChart = new Chart(document.getElementById('indexChart'), {{
                 type: 'line',
                 data: {{
                     labels: data.dates,

@@ -300,7 +300,7 @@
         };
 
         // Store chart instances for updates
-        let allocationChart, regionChart, allocationHistoryChart, regionHistoryChart;
+        let indexChart, allocationChart, regionChart, allocationHistoryChart, regionHistoryChart;
 
         // Current selected account (null = all)
         let selectedAccount = null;
@@ -435,7 +435,7 @@
 
         // Simple region lookup (matches Python logic)
         function getRegion(symbol) {
-            const regionMap = {"HOOD": "US", "ILMN": "US", "SGOV": "US", "ONON": "Europe", "SIE": "Europe", "UBSG": "Europe", "NVO": "Europe", "TCEHY": "China", "BABA": "China", "BILI": "China", "IBKR": "US", "SREN": "Europe", "INGA": "Europe", "NTES": "China", "MBG": "Europe", "RDDT": "US", "BNP": "Europe", "AMD": "US", "ZAL": "Europe", "CS": "Europe", "ACA": "Europe", "VOW3": "Europe", "AMZN": "US", "TCOM": "China", "AIR": "Europe", "SPOT": "Europe", "DUOL": "US", "ADS": "Europe", "SONO": "US", "ZURN": "Europe", "LIGHT": "Canada", "COUR": "US", "BKNG": "US", "LHA": "Europe"};
+            const regionMap = {"BKNG": "US", "ZAL": "Europe", "BABA": "China", "AIR": "Europe", "DUOL": "US", "ADS": "Europe", "ONON": "Europe", "SONO": "US", "TCOM": "China", "LIGHT": "Canada", "ILMN": "US", "BILI": "China", "CS": "Europe", "VOW3": "Europe", "TCEHY": "China", "AMD": "US", "SIE": "Europe", "INGA": "Europe", "RDDT": "US", "MBG": "Europe", "SREN": "Europe", "UBSG": "Europe", "NVO": "Europe", "HOOD": "US", "BNP": "Europe", "NTES": "China", "IBKR": "US", "SPOT": "Europe", "COUR": "US", "AMZN": "US", "ACA": "Europe", "LHA": "Europe", "ZURN": "Europe", "SGOV": "US"};
             return regionMap[symbol] || 'Other';
         }
 
@@ -734,10 +734,31 @@
             regionHistoryChart.update();
         }
 
+        // Update index chart for selected account
+        function updateIndexChart() {
+            if (!indexChart) return;
+
+            let portfolioData;
+            let label;
+            if (selectedAccount === null) {
+                portfolioData = data.indexValues;
+                label = 'Portfolio';
+            } else {
+                const accountIndex = calculateAccountIndex(selectedAccount);
+                portfolioData = accountIndex || data.indexValues;
+                label = selectedAccount;
+            }
+
+            indexChart.data.datasets[0].data = portfolioData;
+            indexChart.data.datasets[0].label = label;
+            indexChart.update();
+        }
+
         // Update all views
         function updateAllViews() {
             updateStats();
             updatePositionsTable();
+            updateIndexChart();
             updateAllocationChart();
             updateRegionChart();
             updateAllocationHistoryChart();
@@ -791,7 +812,7 @@
                 });
             }
 
-            new Chart(document.getElementById('indexChart'), {
+            indexChart = new Chart(document.getElementById('indexChart'), {
                 type: 'line',
                 data: {
                     labels: data.dates,
