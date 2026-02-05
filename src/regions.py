@@ -136,7 +136,7 @@ SYMBOL_REGIONS: dict[str, str] = {
     "TCOM": "China",   # Trip.com
 
     # Canada
-    "LIGHT": "Canada", # Lightspeed Commerce
+    "LIGHT": "Europe", # Signify (Philips Hue) - Netherlands
 
     # Japan
     "SONY": "Japan",
