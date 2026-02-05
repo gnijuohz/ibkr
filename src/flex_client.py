@@ -126,13 +126,29 @@ class FlexClient:
         # Parse positions
         positions = []
         for pos in root.findall(".//OpenPosition"):
+            # Try multiple possible attribute names for market value
+            # IBKR uses different names depending on query configuration
+            market_value = 0.0
+            for attr in ["positionValue", "markValue", "marketValue", "value"]:
+                val = pos.get(attr)
+                if val:
+                    market_value = float(val)
+                    break
+
+            # If still 0, try calculating from quantity * markPrice
+            if market_value == 0:
+                quantity = float(pos.get("position", 0) or pos.get("quantity", 0) or 0)
+                mark_price = float(pos.get("markPrice", 0) or 0)
+                if quantity and mark_price:
+                    market_value = quantity * mark_price
+
             position = Position(
                 symbol=pos.get("symbol", ""),
                 description=pos.get("description", ""),
                 asset_category=pos.get("assetCategory", ""),
-                market_value=float(pos.get("positionValue", 0) or 0),
-                cost_basis=float(pos.get("costBasisMoney", 0) or 0),
-                unrealized_pnl=float(pos.get("fifoPnlUnrealized", 0) or 0),
+                market_value=market_value,
+                cost_basis=float(pos.get("costBasisMoney", 0) or pos.get("costBasis", 0) or 0),
+                unrealized_pnl=float(pos.get("fifoPnlUnrealized", 0) or pos.get("unrealizedPnl", 0) or 0),
                 currency=pos.get("currency", "USD"),
                 account_id=pos.get("accountId", ""),
             )
@@ -152,8 +168,20 @@ class FlexClient:
                         cash_by_account[account_id] = ending_cash
                     cash_balance += ending_cash
 
+        # If not found, try EquitySummaryInBase
+        if cash_balance == 0:
+            equity = root.find(".//EquitySummaryInBase")
+            if equity is not None:
+                cash_balance = float(equity.get("cash", 0) or 0)
+
         # Calculate total value
         total_value = sum(p.market_value for p in positions) + cash_balance
+
+        # If total is still 0, try getting from NAV/equity summary
+        if total_value == 0:
+            equity = root.find(".//EquitySummaryInBase")
+            if equity is not None:
+                total_value = float(equity.get("total", 0) or equity.get("totalLong", 0) or 0)
 
         return PortfolioSnapshot(
             date=date,
