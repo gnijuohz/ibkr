@@ -161,7 +161,8 @@ def _generate_html(history: PortfolioHistory) -> str:
             all_positions.append({
                 "symbol": pos.symbol,
                 "pct": round(pos.allocation_pct, 2),
-                "account_id": account_mask.get(pos.account_id, "")
+                "account_id": account_mask.get(pos.account_id, ""),
+                "region": get_region(pos.symbol)
             })
 
     # Calculate regional allocation for latest snapshot
@@ -551,6 +552,13 @@ def _generate_html(history: PortfolioHistory) -> str:
                     <canvas id="regionHistoryChart"></canvas>
                 </div>
             </div>
+
+            <div class="chart-card">
+                <h2>Top European Holdings</h2>
+                <div class="chart-container">
+                    <canvas id="europeChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <div class="chart-card">
@@ -604,7 +612,7 @@ def _generate_html(history: PortfolioHistory) -> str:
         }};
 
         // Store chart instances for updates
-        let indexChart, allocationChart, regionChart, allocationHistoryChart, regionHistoryChart;
+        let indexChart, allocationChart, regionChart, allocationHistoryChart, regionHistoryChart, europeChart;
 
         // Current selected account (null = all)
         let selectedAccount = null;
@@ -1077,6 +1085,7 @@ def _generate_html(history: PortfolioHistory) -> str:
             updateRegionChart();
             updateAllocationHistoryChart();
             updateRegionalHistoryChart();
+            updateEuropeChart();
         }}
 
         // Initialize charts
@@ -1251,6 +1260,43 @@ def _generate_html(history: PortfolioHistory) -> str:
                 }}
             }});
             updateRegionalHistoryChart();
+
+            // Top European Holdings Chart
+            europeChart = new Chart(document.getElementById('europeChart'), {{
+                type: 'bar',
+                data: {{ labels: [], datasets: [{{ data: [], backgroundColor: '#8b5cf6', borderRadius: 4 }}] }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {{ legend: {{ display: false }} }},
+                    scales: {{
+                        x: {{
+                            beginAtZero: true,
+                            ticks: {{ callback: v => v + '%' }}
+                        }}
+                    }}
+                }}
+            }});
+            updateEuropeChart();
+        }}
+
+        function updateEuropeChart() {{
+            if (!data.allPositions) return;
+
+            // Filter European positions, optionally by account
+            let europePositions = data.allPositions.filter(p => p.region === 'Europe');
+            if (selectedAccount !== null) {{
+                europePositions = europePositions.filter(p => p.account_id === selectedAccount);
+            }}
+
+            // Sort by percentage and take top 10
+            europePositions.sort((a, b) => b.pct - a.pct);
+            const top10 = europePositions.slice(0, 10);
+
+            europeChart.data.labels = top10.map(p => p.symbol);
+            europeChart.data.datasets[0].data = top10.map(p => p.pct);
+            europeChart.update();
         }}
 
         // Initialize everything
