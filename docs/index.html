@@ -435,7 +435,7 @@
 
         // Simple region lookup (matches Python logic)
         function getRegion(symbol) {
-            const regionMap = {"LHA": "Europe", "COUR": "US", "ZURN": "Europe", "AMZN": "US", "TCOM": "China", "ZAL": "Europe", "NVO": "Europe", "BABA": "China", "ILMN": "US", "AMD": "US", "IBKR": "US", "RDDT": "US", "ADS": "Europe", "ACA": "Europe", "VOW3": "Europe", "HOOD": "US", "CS": "Europe", "SPOT": "Europe", "SREN": "Europe", "AIR": "Europe", "TCEHY": "China", "BKNG": "US", "SIE": "Europe", "NTES": "China", "UBSG": "Europe", "SONO": "US", "BNP": "Europe", "DUOL": "US", "ONON": "Europe", "MBG": "Europe", "BILI": "China", "INGA": "Europe", "LIGHT": "Canada"};
+            const regionMap = {"ADS": "Europe", "NVO": "Europe", "MBG": "Europe", "UBSG": "Europe", "ZURN": "Europe", "LHA": "Europe", "SIE": "Europe", "RDDT": "US", "BABA": "China", "INGA": "Europe", "TCOM": "China", "CS": "Europe", "SPOT": "Europe", "AMZN": "US", "BKNG": "US", "BILI": "China", "ACA": "Europe", "COUR": "US", "AMD": "US", "ONON": "Europe", "TCEHY": "China", "NTES": "China", "IBKR": "US", "SONO": "US", "ZAL": "Europe", "AIR": "Europe", "HOOD": "US", "VOW3": "Europe", "DUOL": "US", "SREN": "Europe", "LIGHT": "Canada", "BNP": "Europe", "ILMN": "US"};
             return regionMap[symbol] || 'Other';
         }
 
@@ -486,7 +486,7 @@
             // Calculate per-account stats if an account is selected
             if (selectedAccount !== null) {
                 // Check if account has data in latest snapshot
-                const latestAccountPct = data.latest.total_by_account?.[selectedAccount];
+                const latestAccountPct = data.latest.totalByAccount?.[selectedAccount];
                 if (!latestAccountPct || latestAccountPct === 0) {
                     // Account has no current positions - show N/A
                     document.getElementById('indexValue').textContent = 'N/A';

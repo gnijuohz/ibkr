@@ -790,7 +790,7 @@ def _generate_html(history: PortfolioHistory) -> str:
             // Calculate per-account stats if an account is selected
             if (selectedAccount !== null) {{
                 // Check if account has data in latest snapshot
-                const latestAccountPct = data.latest.total_by_account?.[selectedAccount];
+                const latestAccountPct = data.latest.totalByAccount?.[selectedAccount];
                 if (!latestAccountPct || latestAccountPct === 0) {{
                     // Account has no current positions - show N/A
                     document.getElementById('indexValue').textContent = 'N/A';
