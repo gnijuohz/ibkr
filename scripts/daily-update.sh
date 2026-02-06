@@ -7,8 +7,8 @@
 #   1 = error (config, network, etc.)
 #   2 = no new data (already have today's data)
 #
-# Usage in crontab (Wednesday and Sunday at 1 AM):
-#   0 1 * * 0,3 /path/to/ibkr/scripts/daily-update.sh >> /path/to/ibkr/logs/cron.log 2>&1
+# Usage in crontab (daily at 7 AM):
+#   0 7 * * * /path/to/ibkr/scripts/daily-update.sh >> /path/to/ibkr/logs/cron.log 2>&1
 
 # Change to project directory
 cd "$(dirname "$0")/.."

@@ -3,11 +3,12 @@
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 import requests
 
-from .config import FLEX_TOKEN, FLEX_QUERY_ID, FLEX_REQUEST_URL, FLEX_STATEMENT_URL
+from .config import FLEX_TOKEN, FLEX_QUERY_ID, FLEX_REQUEST_URL, FLEX_STATEMENT_URL, DATA_DIR
 
 
 @dataclass
@@ -58,8 +59,28 @@ class FlexClient:
         # Step 2: Wait and fetch the statement
         statement_xml = self._fetch_statement(reference_code)
 
-        # Step 3: Parse the XML into a PortfolioSnapshot
+        # Step 3: Save raw XML for debugging
+        self._save_raw_xml(statement_xml)
+
+        # Step 4: Parse the XML into a PortfolioSnapshot
         return self._parse_statement(statement_xml)
+
+    def _save_raw_xml(self, xml_text: str):
+        """Save raw XML response to data/raw/ for future inspection."""
+        raw_dir = DATA_DIR / "raw"
+        raw_dir.mkdir(exist_ok=True)
+
+        # Extract date from the XML to use as filename
+        try:
+            root = ET.fromstring(xml_text)
+            stmt = root.find(".//FlexStatement")
+            date = stmt.get("toDate", "unknown") if stmt is not None else "unknown"
+        except Exception:
+            date = "unknown"
+
+        path = raw_dir / f"flex_{date}.xml"
+        path.write_text(xml_text)
+        print(f"Raw XML saved to: {path}")
 
     def _request_report(self) -> str:
         """Request a Flex report and return the reference code."""
