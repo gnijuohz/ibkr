@@ -10495,6 +10495,233 @@
         "Account B": 10.85,
         "Account A": 89.15
       }
+    },
+    {
+      "date": "20260409",
+      "positions": [
+        {
+          "symbol": "RDDT",
+          "allocation_pct": 18.34,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "DUOL",
+          "allocation_pct": 14.25,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "SPOT",
+          "allocation_pct": 6.38,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "AMD",
+          "allocation_pct": 3.73,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "LIGHT",
+          "allocation_pct": 3.71,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "COUR",
+          "allocation_pct": 3.6,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "BILI",
+          "allocation_pct": 3.31,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "ONON",
+          "allocation_pct": 2.89,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "BNP",
+          "allocation_pct": 2.35,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "SONO",
+          "allocation_pct": 2.19,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "ZAL",
+          "allocation_pct": 2.16,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "ACA",
+          "allocation_pct": 2.05,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "NTES",
+          "allocation_pct": 2.02,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "RDDT",
+          "allocation_pct": 2.0,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "CS",
+          "allocation_pct": 1.96,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "ZURN",
+          "allocation_pct": 1.83,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "BILI",
+          "allocation_pct": 1.68,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "AMZN",
+          "allocation_pct": 1.66,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "TCOM",
+          "allocation_pct": 1.62,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "MBG",
+          "allocation_pct": 1.43,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "VOW3",
+          "allocation_pct": 1.4,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "HOOD",
+          "allocation_pct": 1.32,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "ADS",
+          "allocation_pct": 1.29,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "IBKR",
+          "allocation_pct": 1.27,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "ONON",
+          "allocation_pct": 1.19,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "BABA",
+          "allocation_pct": 1.04,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "SREN",
+          "allocation_pct": 0.97,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "HOOD",
+          "allocation_pct": 0.92,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "DUOL",
+          "allocation_pct": 0.69,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "TCEHY",
+          "allocation_pct": 0.68,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "INGA",
+          "allocation_pct": 0.64,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "AIR",
+          "allocation_pct": 0.63,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "SIE",
+          "allocation_pct": 0.59,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "CRM",
+          "allocation_pct": 0.54,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "COUR",
+          "allocation_pct": 0.48,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "UBSG",
+          "allocation_pct": 0.43,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "LHA",
+          "allocation_pct": 0.33,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "SPOT",
+          "allocation_pct": 0.26,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "NOW",
+          "allocation_pct": 0.24,
+          "account_id": "Account A"
+        },
+        {
+          "symbol": "SONO",
+          "allocation_pct": 0.21,
+          "account_id": "Account B"
+        },
+        {
+          "symbol": "BKNG",
+          "allocation_pct": 0.12,
+          "account_id": "Account A"
+        }
+      ],
+      "cash_pct": 0.12,
+      "invested_pct": 99.88,
+      "index_value": 72.27,
+      "period_return_pct": -2.26,
+      "total_return_pct": -27.73,
+      "accounts": [
+        "Account A",
+        "Account B"
+      ],
+      "cash_by_account": {
+        "Account A": 0.09,
+        "Account B": 0.02
+      },
+      "total_by_account": {
+        "Account B": 10.51,
+        "Account A": 89.49
+      }
     }
   ]
 }
